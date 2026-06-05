@@ -16,6 +16,8 @@ type AuthStoreState = {
 };
 
 function getDefaultUser(): User {
+  // TODO: Replace this temporary development-only default session with real
+  // OWSEC/auth enforcement when authentication is implemented.
   return (
     mockUsers.find((user) => user.profile.role === "operator_admin") ?? mockUsers[0]
   );
