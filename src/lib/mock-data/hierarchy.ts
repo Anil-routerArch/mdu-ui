@@ -426,6 +426,7 @@ export const hierarchyExampleIds = {
   TOWER_1_ID,
   FLOOR_12_ID,
   VENUE_LOUNGE_ID,
+  VENUE_OFFICE_ID,
   CUSTOMER_DIRECT_ID,
   HARBOR_SITE_ID,
   HARBOR_VENUE_ID,
