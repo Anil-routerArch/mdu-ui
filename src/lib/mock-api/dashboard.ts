@@ -7,9 +7,25 @@ import { getCurrentSubscription } from "@/lib/mock-api/billing";
 import { mockRecentAlerts } from "@/lib/mock-data/alerts";
 import { mockDevices } from "@/lib/mock-data/devices";
 import { filterByScope } from "@/lib/mock-api/client";
-import { findNodeById } from "@/lib/mock-data/hierarchy";
+import { findNodeById, getDescendants } from "@/lib/mock-data/hierarchy";
+import { can } from "@/lib/rbac/can";
 import type { DashboardSummary } from "@/types/dashboard";
 import type { User } from "@/types/user";
+
+function getScopedCountByType(scopeId: string, type: "site" | "building" | "floor" | "venue") {
+  const currentNode = findNodeById(scopeId);
+
+  if (!currentNode) {
+    return 0;
+  }
+
+  const descendants = getDescendants(scopeId);
+  const currentNodeCount = currentNode.type === type ? 1 : 0;
+
+  return (
+    currentNodeCount + descendants.filter((node) => node.type === type).length
+  );
+}
 
 export async function getDashboardSummary(
   scopeId: string,
@@ -41,7 +57,16 @@ export async function getDashboardSummary(
     };
 
     const { forcePartialData } = getRuntimeFlags();
-    const currentSubscription = await getCurrentSubscription(scopeId, user);
+    const billingDecision = can(user, "view", "billing", {
+      nodeId: scopeId,
+      nodeType: scopeNode?.type ?? "venue",
+      nodeName: scopeNode?.name ?? "Selected Scope",
+      path: scopeNode?.path ?? [],
+    });
+
+    const currentSubscription = billingDecision.allowed
+      ? await getCurrentSubscription(scopeId, user)
+      : null;
 
     return {
       scopePath: scopeNode?.path ?? [],
@@ -49,7 +74,15 @@ export async function getDashboardSummary(
         {
           key: "sites",
           label: "Sites",
-          value: scopeNode?.path.filter((item) => item.type === "site").length ?? 0,
+          value: getScopedCountByType(scopeId, "site"),
+          delta: 0,
+          deltaLabel: "0 this week",
+          severity: "info",
+        },
+        {
+          key: "buildings",
+          label: "Buildings",
+          value: getScopedCountByType(scopeId, "building"),
           delta: 0,
           deltaLabel: "0 this week",
           severity: "info",
@@ -57,7 +90,7 @@ export async function getDashboardSummary(
         {
           key: "floors",
           label: "Floors",
-          value: scopeNode?.path.filter((item) => item.type === "floor").length ?? 0,
+          value: getScopedCountByType(scopeId, "floor"),
           delta: 1,
           deltaLabel: "1 this week",
           severity: "success",
@@ -65,7 +98,7 @@ export async function getDashboardSummary(
         {
           key: "venues",
           label: "Venues",
-          value: scopedAlerts.length > 0 ? 2 : 1,
+          value: getScopedCountByType(scopeId, "venue"),
           delta: 1,
           deltaLabel: "1 this week",
           severity: "info",
@@ -86,14 +119,6 @@ export async function getDashboardSummary(
           deltaLabel: `${scopedAlerts.filter((alert) => alert.severity === "critical").length} critical`,
           severity: scopedAlerts.length > 0 ? "warning" : "success",
         },
-        {
-          key: "buildings",
-          label: "Buildings",
-          value: scopeNode?.path.filter((item) => item.type === "building").length ?? 0,
-          delta: 0,
-          deltaLabel: "0 this week",
-          severity: "info",
-        },
       ],
       health,
       recentAlerts: forcePartialData ? scopedAlerts.slice(0, 2) : scopedAlerts,
@@ -103,7 +128,7 @@ export async function getDashboardSummary(
         { key: "create_user", label: "Create User" },
         { key: "view_topology", label: "View Topology" },
       ],
-      billingSummary: currentSubscription
+      billingSummary: billingDecision.allowed && currentSubscription
         ? {
             currentPlanName: currentSubscription.planName,
             currentPlanType: currentSubscription.planType,
