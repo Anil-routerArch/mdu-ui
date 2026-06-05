@@ -1,13 +1,5 @@
-export default function BillingPage() {
-  return (
-    <section className="space-y-2">
-      <p className="text-sm font-medium tracking-wide text-slate-500 uppercase">
-        Route Placeholder
-      </p>
-      <h1 className="text-3xl font-semibold text-slate-950">Billing</h1>
-      <p className="text-sm text-slate-600">
-        Minimal placeholder for the billing route.
-      </p>
-    </section>
-  );
+import { BillingPage } from "@/components/billing";
+
+export default function BillingRoutePage() {
+  return <BillingPage />;
 }
