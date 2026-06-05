@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { BoxesIcon, MoveRightIcon, PlusIcon, Trash2Icon } from "lucide-react";
+import { MoveRightIcon, PlusIcon, Trash2Icon } from "lucide-react";
 
 import {
   BackendUnavailableState,
@@ -10,9 +10,10 @@ import {
   LoadingState,
   NoPermissionState,
 } from "@/components/states";
+import { TopologyTab } from "@/components/topology";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getConfigurations } from "@/lib/mock-api/configurations";
 import { getDevices } from "@/lib/mock-api/devices";
@@ -169,26 +170,7 @@ export function NodeWorkspace({
         </TabsContent>
 
         <TabsContent value="topology" className="pt-4">
-          <Card className="border border-slate-200/80 bg-white shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-base text-slate-950">Topology</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm text-slate-600">
-              <div className="flex items-start gap-3 rounded-xl border border-slate-200/70 bg-slate-50/60 p-4">
-                <span className="inline-flex size-10 items-center justify-center rounded-full bg-blue-50 text-blue-700">
-                  <BoxesIcon className="size-4" />
-                </span>
-                <div className="space-y-2">
-                  <p className="font-medium text-slate-900">Topology canvas will be implemented in the next React Flow phase.</p>
-                  <ul className="list-inside list-disc space-y-1 text-slate-600">
-                    <li>Topology is contextual under Hierarchy.</li>
-                    <li>Topology is not a root sidebar module.</li>
-                    <li>The selected node and scope will drive topology data.</li>
-                  </ul>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <TopologyTab nodeId={node.id} />
         </TabsContent>
 
         <TabsContent value="devices" className="pt-4">
