@@ -33,18 +33,18 @@ export function UserProfileMenu() {
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="h-12 rounded-2xl px-3 text-white hover:bg-white/10 hover:text-white"
+          className="h-9 rounded-xl px-2.5 text-white hover:bg-white/10 hover:text-white"
         >
-          <div className="mr-3 flex size-9 items-center justify-center rounded-full bg-white text-slate-900">
-            <UserCircle2Icon className="size-5" />
+          <div className="mr-2.5 flex size-7 items-center justify-center rounded-full bg-white text-slate-900">
+            <UserCircle2Icon className="size-4" />
           </div>
           <div className="hidden min-w-0 text-left sm:block">
-            <div className="truncate text-sm font-medium">{currentUser.name}</div>
-            <div className="truncate text-xs text-slate-300">
+            <div className="truncate text-xs font-medium">{currentUser.name}</div>
+            <div className="truncate text-[11px] text-slate-300">
               {currentUser.profile.role}
             </div>
           </div>
-          <ChevronDownIcon className="ml-2 size-4" />
+          <ChevronDownIcon className="ml-1.5 size-3.5" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-80">

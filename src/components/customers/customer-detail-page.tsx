@@ -93,7 +93,7 @@ export function CustomerDetailPage({ customerId }: CustomerDetailPageProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 px-5 py-5 sm:px-6 sm:py-6">
       <Card className="border border-slate-200/80 bg-white shadow-sm">
         <CardHeader className="space-y-3">
           <div className="flex flex-wrap items-center gap-2">

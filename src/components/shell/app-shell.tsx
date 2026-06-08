@@ -43,13 +43,13 @@ export function AppShell({ children }: AppShellProps) {
   }, [currentUser, selectedScope, setSelectedNode]);
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="h-screen overflow-hidden bg-[#f4f7fb]">
       <TopAppHeader />
-      <div className="flex min-h-[calc(100vh-5rem)]">
+      <div className="flex h-[calc(100vh-60px)] overflow-hidden">
         <aside
           className={[
-            "hidden border-r border-slate-200 bg-white lg:block",
-            sidebarCollapsed ? "w-[88px]" : "w-[280px]",
+            "hidden h-full shrink-0 border-r border-[#e6edf7] bg-white lg:block",
+            sidebarCollapsed ? "w-[92px]" : "w-[246px]",
           ].join(" ")}
         >
           <Sidebar />
@@ -61,11 +61,11 @@ export function AppShell({ children }: AppShellProps) {
           </SheetContent>
         </Sheet>
 
-        <div className="flex min-w-0 flex-1 flex-col">
-          <div className="border-b border-slate-200 bg-slate-50/80 px-4 py-4 backdrop-blur-sm sm:px-6">
+        <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+          <div className="border-b border-[#e8eef7] bg-[#f7faff] px-0 py-0 sm:px-0">
             <ScopeBreadcrumbBar />
           </div>
-          <main className="flex-1 px-4 py-6 sm:px-6">{children}</main>
+          <main className="flex-1 overflow-y-auto overflow-x-hidden">{children}</main>
         </div>
       </div>
       <GlobalSearchOverlay />

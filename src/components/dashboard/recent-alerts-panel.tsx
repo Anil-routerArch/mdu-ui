@@ -1,7 +1,9 @@
-import { AlertTriangleIcon, InfoIcon, SirenIcon } from "lucide-react";
+import Link from "next/link";
+import { AlertTriangleIcon, ChevronRightIcon, InfoIcon, SirenIcon } from "lucide-react";
 
 import { EmptyState } from "@/components/states";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -41,73 +43,72 @@ function formatTimestamp(value: string): string {
     return "Recently";
   }
 
-  const diffMs = Date.now() - date.getTime();
-  const diffMinutes = Math.max(1, Math.floor(diffMs / (1000 * 60)));
-
-  if (diffMinutes < 60) {
-    return `${diffMinutes} min ago`;
-  }
-
-  const diffHours = Math.floor(diffMinutes / 60);
-
-  if (diffHours < 24) {
-    return `${diffHours} hr ago`;
-  }
-
-  const diffDays = Math.floor(diffHours / 24);
-  return `${diffDays} day${diffDays === 1 ? "" : "s"} ago`;
+  return date.toLocaleTimeString([], {
+    hour: "numeric",
+    minute: "2-digit",
+  });
 }
 
 export function RecentAlertsPanel({ alerts }: RecentAlertsPanelProps) {
   return (
-    <Card className="border border-slate-200/80 bg-white shadow-sm">
-      <CardHeader className="gap-2">
-        <CardTitle className="text-base text-slate-950">Recent Alerts</CardTitle>
-        <CardDescription className="text-sm text-slate-500">
-          Latest operational events within the selected scope.
-        </CardDescription>
+    <Card className="h-[358px] rounded-[14px] border border-[#e6edf7] bg-white py-0 shadow-[0_12px_26px_rgba(15,23,42,0.04)]">
+      <CardHeader className="gap-1.5 py-3.5">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <CardTitle className="text-[1.05rem] text-[#0f1f46]">Recent Alerts</CardTitle>
+            <CardDescription className="text-[13px] leading-5 text-slate-500">
+              Latest operational events within the selected scope.
+            </CardDescription>
+          </div>
+          <Button asChild variant="ghost" className="text-[#2563eb] hover:bg-[#f2f7ff]">
+            <Link href="/devices">
+              View all
+              <ChevronRightIcon className="size-4" />
+            </Link>
+          </Button>
+        </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="h-[calc(358px-64px)] overflow-hidden pb-4">
         {alerts.length === 0 ? (
           <EmptyState
             title="No recent alerts"
             description="Operational alerts for the selected scope will appear here."
           />
         ) : (
-          <div className="space-y-3">
+          <div className="h-full space-y-1.5 overflow-y-auto pr-1">
             {alerts.map((alert) => {
               const config = severityConfig[alert.severity];
               const Icon = config.icon;
+              const scopeSummary = alert.scopePath.map((item) => item.name).join(" / ");
 
               return (
                 <div
                   key={alert.id}
-                  className="rounded-xl border border-slate-200/70 bg-slate-50/60 p-4"
+                  className="rounded-[12px] border border-[#edf2f8] bg-white px-3 py-2 shadow-none"
                 >
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                    <div className="min-w-0 space-y-2">
-                      <div className="flex items-center gap-2">
-                        <Badge
-                          variant="outline"
-                          className={`border-0 ring-1 ${config.badgeClassName}`}
-                        >
-                          <Icon className="size-3.5" />
-                          {alert.severity}
-                        </Badge>
-                        <span className="text-xs text-slate-500">
-                          {formatTimestamp(alert.occurredAt)}
-                        </span>
-                      </div>
-                      <div className="space-y-1">
-                        <p className="font-medium text-slate-950">{alert.title}</p>
-                        <p className="text-sm text-slate-600">{alert.description}</p>
-                      </div>
+                  <div className="flex items-start gap-3">
+                    <span
+                      className={`mt-0.5 inline-flex size-7 shrink-0 items-center justify-center rounded-full ${config.badgeClassName}`}
+                    >
+                      <Icon className="size-3.5" />
+                    </span>
+                    <div className="min-w-0 flex-1 space-y-1">
+                      <p className="text-[0.95rem] font-semibold leading-5 text-slate-900">{alert.title}</p>
+                      <p className="truncate text-[0.95rem] text-slate-500">
+                        {alert.resourceLabel ?? scopeSummary}
+                      </p>
                     </div>
-                    {alert.resourceLabel ? (
-                      <div className="rounded-lg bg-white px-3 py-1.5 text-xs text-slate-600 ring-1 ring-slate-200/70">
-                        {alert.resourceLabel}
-                      </div>
-                    ) : null}
+                    <div className="flex shrink-0 flex-col items-end gap-1.5">
+                      <span className="text-[0.95rem] text-slate-500">
+                        {formatTimestamp(alert.occurredAt)}
+                      </span>
+                      <Badge
+                        variant="outline"
+                        className={`h-6 border-0 px-2 text-[0.9rem] ring-1 ${config.badgeClassName}`}
+                      >
+                        {alert.severity}
+                      </Badge>
+                    </div>
                   </div>
                 </div>
               );

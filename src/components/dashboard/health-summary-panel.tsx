@@ -1,6 +1,14 @@
-import { ActivityIcon, AlertTriangleIcon, CheckCircle2Icon, WifiOffIcon } from "lucide-react";
+import Link from "next/link";
+import {
+  ActivityIcon,
+  AlertTriangleIcon,
+  CheckCircle2Icon,
+  ChevronRightIcon,
+  WifiOffIcon,
+} from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -57,69 +65,119 @@ export function HealthSummaryPanel({ health }: HealthSummaryPanelProps) {
   const onlinePercentage = getPercentage(health.online, health.totalDevices);
   const warningPercentage = getPercentage(health.warning, health.totalDevices);
   const offlinePercentage = getPercentage(health.offline, health.totalDevices);
-  const unknownPercentage = getPercentage(health.unknown, health.totalDevices);
+  const donutStyle = {
+    background: `conic-gradient(#22c55e 0 ${onlinePercentage}%, #fbbf24 ${onlinePercentage}% ${onlinePercentage + warningPercentage}%, #ef4444 ${onlinePercentage + warningPercentage}% ${onlinePercentage + warningPercentage + offlinePercentage}%, #cbd5e1 ${onlinePercentage + warningPercentage + offlinePercentage}% 100%)`,
+  };
+  const topIssues = [
+    health.offline > 0
+      ? `${health.offline} infrastructure device${health.offline === 1 ? "" : "s"} offline`
+      : null,
+    health.warning > 0
+      ? `${health.warning} device${health.warning === 1 ? "" : "s"} require attention`
+      : null,
+    health.unknown > 0
+      ? `${health.unknown} device${health.unknown === 1 ? "" : "s"} reporting unknown status`
+      : null,
+    health.online > 0
+      ? `${health.online} device${health.online === 1 ? "" : "s"} healthy and online`
+      : null,
+  ].filter((issue): issue is string => Boolean(issue));
 
   return (
-    <Card className="border border-slate-200/80 bg-white shadow-sm">
-      <CardHeader className="gap-2">
+    <Card className="h-[358px] rounded-[14px] border border-[#e6edf7] bg-white py-0 shadow-[0_12px_26px_rgba(15,23,42,0.04)]">
+      <CardHeader className="gap-1.5 py-3.5">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <CardTitle className="text-base text-slate-950">Environment Health</CardTitle>
-            <CardDescription className="text-sm text-slate-500">
+            <CardTitle className="text-[1.05rem] text-[#0f1f46]">Environment Health</CardTitle>
+            <CardDescription className="text-[13px] leading-5 text-slate-500">
               Operational status within the selected scope.
             </CardDescription>
           </div>
-          <Badge variant="outline" className="bg-slate-50 text-slate-700">
-            {health.totalDevices} devices
-          </Badge>
+          <Button asChild variant="ghost" className="text-[#2563eb] hover:bg-[#f2f7ff]">
+            <Link href="/devices">
+              View all
+              <ChevronRightIcon className="size-4" />
+            </Link>
+          </Button>
         </div>
       </CardHeader>
-      <CardContent className="space-y-5">
-        <div className="space-y-2">
-          <div className="h-3 overflow-hidden rounded-full bg-slate-100">
-            <div className="flex h-full w-full">
-              <div className="bg-emerald-500" style={{ width: `${onlinePercentage}%` }} />
-              <div className="bg-amber-400" style={{ width: `${warningPercentage}%` }} />
-              <div className="bg-rose-500" style={{ width: `${offlinePercentage}%` }} />
-              <div className="bg-slate-300" style={{ width: `${unknownPercentage}%` }} />
+      <CardContent className="grid h-[calc(358px-64px)] gap-3 overflow-hidden pb-4 xl:grid-cols-[1.05fr_0.95fr]">
+        <div className="grid gap-3 md:grid-cols-[126px_1fr] md:items-center">
+          <div className="flex items-center justify-center">
+            <div className="relative flex size-[92px] items-center justify-center rounded-full" style={donutStyle}>
+              <div className="flex size-[68px] flex-col items-center justify-center rounded-full bg-white text-center shadow-[inset_0_0_0_1px_rgba(226,232,240,0.8)]">
+                <p className="text-[1.1rem] font-semibold leading-none text-[#0f1f46]">
+                  {health.totalDevices}
+                </p>
+                <p className="mt-1 text-[10px] text-slate-500">Total Devices</p>
+              </div>
             </div>
           </div>
-          <div className="flex flex-wrap gap-2 text-xs text-slate-500">
-            <span>{onlinePercentage}% online</span>
-            <span>•</span>
-            <span>{warningPercentage}% warning</span>
-            <span>•</span>
-            <span>{offlinePercentage}% offline</span>
+
+          <div className="grid gap-2">
+            {healthItems.map((item) => {
+              const Icon = item.icon;
+              const count = health[item.key];
+
+              return (
+                <div key={item.key} className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <span
+                      className={`inline-flex size-6 items-center justify-center rounded-full ${item.bgClassName}`}
+                    >
+                      <Icon className={`size-3 ${item.textClassName}`} />
+                    </span>
+                    <span className="text-[0.95rem] font-medium text-slate-700">{item.label}</span>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[0.95rem] font-semibold text-slate-900">{count.toLocaleString()}</p>
+                    <p className="text-[0.95rem] text-slate-500">
+                      {getPercentage(count, health.totalDevices)}%
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          {healthItems.map((item) => {
-            const Icon = item.icon;
-            const count = health[item.key];
-
-            return (
-              <div
-                key={item.key}
-                className="rounded-xl border border-slate-200/70 bg-slate-50/70 p-3"
-              >
-                <div className="mb-3 flex items-center gap-2">
+        <div className="overflow-hidden border-t border-[#edf2f8] pt-1 xl:border-l xl:border-t-0 xl:pl-4 xl:pt-0">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <div>
+              <p className="text-[0.95rem] font-semibold text-slate-900">Top Issues</p>
+              <p className="text-[0.9rem] text-slate-500">Operational highlights from this scope.</p>
+            </div>
+            <Badge variant="outline" className="border-[#dce7f8] bg-[#f7faff] text-slate-600">
+              {health.totalDevices} devices
+            </Badge>
+          </div>
+          <div className="space-y-1.5 overflow-y-auto pr-1">
+            {topIssues.map((issue, index) => (
+              <div key={issue} className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
                   <span
-                    className={`inline-flex size-8 items-center justify-center rounded-full ${item.bgClassName}`}
-                  >
-                    <Icon className={`size-4 ${item.textClassName}`} />
-                  </span>
-                  <span className="text-sm font-medium text-slate-700">{item.label}</span>
+                    className={[
+                      "inline-flex size-2.5 rounded-full",
+                      index === 0
+                        ? "bg-rose-500"
+                        : index === 1
+                          ? "bg-amber-500"
+                          : index === 2
+                            ? "bg-slate-400"
+                            : "bg-emerald-500",
+                    ].join(" ")}
+                  />
+                  <p className="text-[0.95rem] text-slate-700">{issue}</p>
                 </div>
-                <div className="flex items-end justify-between gap-3">
-                  <p className="text-2xl font-semibold text-slate-950">{count}</p>
-                  <p className="text-xs text-slate-500">
-                    {getPercentage(count, health.totalDevices)}%
-                  </p>
-                </div>
+                <Button variant="link" className="h-auto px-0 text-[0.95rem] text-[#2563eb]">
+                  View
+                </Button>
               </div>
-            );
-          })}
+            ))}
+          </div>
+          <Button variant="link" className="mt-2 h-auto px-0 text-[0.95rem] text-[#2563eb]">
+            Go to System Health
+          </Button>
         </div>
       </CardContent>
     </Card>

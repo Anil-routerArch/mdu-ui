@@ -1,14 +1,13 @@
 import Link from "next/link";
-import { CreditCardIcon, FolderTreeIcon, LayoutDashboardIcon, RouterIcon, ShieldIcon, UsersIcon } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  CreditCardIcon,
+  FolderTreeIcon,
+  RouterIcon,
+  ShieldIcon,
+  UsersIcon,
+} from "lucide-react";
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ROUTES } from "@/lib/constants/routes";
 import { can } from "@/lib/rbac/can";
 import type { SelectedScope } from "@/types/hierarchy";
@@ -68,42 +67,59 @@ export function QuickActionsPanel({ user, selectedScope }: QuickActionsPanelProp
   );
 
   return (
-    <Card className="border border-slate-200/80 bg-white shadow-sm">
+    <Card className="h-[368px] rounded-[14px] border border-[#e6edf7] bg-white py-0 shadow-[0_12px_26px_rgba(15,23,42,0.04)]">
       <CardHeader className="gap-2">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <CardTitle className="text-base text-slate-950">Quick Actions</CardTitle>
-            <CardDescription className="text-sm text-slate-500">
-              Role-aware navigation shortcuts for the selected scope.
-            </CardDescription>
+            <CardTitle className="text-base text-[#0f1f46]">Quick Actions</CardTitle>
           </div>
-          <span className="inline-flex size-10 items-center justify-center rounded-full bg-slate-100 text-slate-700">
-            <LayoutDashboardIcon className="size-4" />
-          </span>
         </div>
       </CardHeader>
-      <CardContent className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      <CardContent className="p-0">
+        <div className="grid gap-3 px-4 pb-4 sm:grid-cols-3">
         {visibleActions.map((action) => {
           const Icon = action.icon;
+          const iconClassName =
+            action.key === "hierarchy"
+              ? "text-blue-600"
+              : action.key === "devices"
+                ? "text-violet-600"
+                : action.key === "billing"
+                  ? "text-amber-500"
+                  : action.key === "users"
+                    ? "text-blue-600"
+                    : "text-emerald-600";
+          const bgClassName =
+            action.key === "hierarchy"
+              ? "bg-blue-50"
+              : action.key === "devices"
+                ? "bg-violet-50"
+                : action.key === "billing"
+                  ? "bg-amber-50"
+                  : action.key === "users"
+                    ? "bg-blue-50"
+                    : "bg-emerald-50";
 
           return (
-            <div
+            <Link
               key={action.key}
-              className="rounded-xl border border-slate-200/70 bg-slate-50/60 p-4"
+              href={action.href}
+              className="group rounded-[12px] border border-[#e7eef8] bg-white p-3 transition-all hover:border-[#d8e5fb] hover:bg-[#fbfdff]"
             >
-              <div className="mb-3 flex items-center gap-2">
-                <span className="inline-flex size-9 items-center justify-center rounded-full bg-blue-50 text-blue-700">
-                  <Icon className="size-4" />
+              <div className="flex flex-col items-center gap-2.5 text-center">
+                <span
+                  className={`inline-flex size-10 items-center justify-center rounded-xl ${bgClassName}`}
+                >
+                  <Icon className={`size-4 ${iconClassName}`} />
                 </span>
-                <p className="font-medium text-slate-900">{action.label}</p>
+                <div>
+                  <p className="text-[13px] font-semibold text-slate-900">{action.label}</p>
+                </div>
               </div>
-              <p className="mb-4 text-sm text-slate-600">{action.description}</p>
-              <Button asChild variant="outline" className="w-full justify-start">
-                <Link href={action.href}>Open</Link>
-              </Button>
-            </div>
+            </Link>
           );
         })}
+        </div>
       </CardContent>
     </Card>
   );
