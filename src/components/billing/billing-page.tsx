@@ -11,7 +11,6 @@ import {
   NoPermissionState,
 } from "@/components/states";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   getAvailablePlans,
   getBillingOverview,
@@ -206,7 +205,7 @@ export function BillingPage() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 px-5  py-5 sm:px-6 sm:py-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-1">
           <h1 className="text-3xl font-semibold tracking-tight text-slate-950">Billing</h1>
@@ -221,63 +220,61 @@ export function BillingPage() {
         ) : null}
       </div>
 
-      <Card className="border border-slate-200/80 bg-slate-50/60 shadow-none">
-        <CardContent className="space-y-6 pt-6">
-          <BillingOverview
-            selectedScope={selectedScope}
-            plans={overview.plans}
-            currentSubscription={overview.currentSubscription}
-            subscriptions={subscriptions}
-            conflicts={mockBillingConflicts}
-          />
+      <div className="space-y-6">
+        <BillingOverview
+          selectedScope={selectedScope}
+          plans={overview.plans}
+          currentSubscription={overview.currentSubscription}
+          subscriptions={subscriptions}
+          conflicts={mockBillingConflicts}
+        />
 
-          {isManagerRole(currentUser.profile.role) ? (
-            <>
-              <BillingPlanList
-                plans={plans}
-                subscriptions={subscriptions}
-                selectedScope={selectedScope}
-                user={currentUser}
-                canEdit={Boolean(editDecision?.allowed)}
-                canAssign={Boolean(assignDecision?.allowed)}
-              />
-              {subscriptions.length > 0 ? (
-                <SubscriptionVisibilityDashboard subscriptions={subscriptions} />
-              ) : (
-                <CurrentSubscriptionDetail subscription={currentSubscription} />
-              )}
-            </>
-          ) : (
-            <div className="space-y-6">
-              <CurrentSubscriptionDetail
-                subscription={currentSubscription}
-                canSelectPlan={canSelectPlan}
-              />
-              <AvailablePlans
-                plans={availablePlans}
-                currentSubscription={currentSubscription}
-                canSelect={canSelectPlan}
-                onSelectPlan={async (plan) => {
-                  const result = await simulatePlanSelection(
-                    plan.id,
-                    selectedScope.nodeId,
-                    currentUser,
-                  );
+        {isManagerRole(currentUser.profile.role) ? (
+          <>
+            <BillingPlanList
+              plans={plans}
+              subscriptions={subscriptions}
+              selectedScope={selectedScope}
+              user={currentUser}
+              canEdit={Boolean(editDecision?.allowed)}
+              canAssign={Boolean(assignDecision?.allowed)}
+            />
+            {subscriptions.length > 0 ? (
+              <SubscriptionVisibilityDashboard subscriptions={subscriptions} />
+            ) : (
+              <CurrentSubscriptionDetail subscription={currentSubscription} />
+            )}
+          </>
+        ) : (
+          <div className="space-y-6">
+            <CurrentSubscriptionDetail
+              subscription={currentSubscription}
+              canSelectPlan={canSelectPlan}
+            />
+            <AvailablePlans
+              plans={availablePlans}
+              currentSubscription={currentSubscription}
+              canSelect={canSelectPlan}
+              onSelectPlan={async (plan) => {
+                const result = await simulatePlanSelection(
+                  plan.id,
+                  selectedScope.nodeId,
+                  currentUser,
+                );
 
-                  if (result.status === "conflict") {
-                    return { conflict: result.conflict };
-                  }
+                if (result.status === "conflict") {
+                  return { conflict: result.conflict };
+                }
 
-                  void currentSubscriptionQuery.refetch();
-                  void availablePlansQuery.refetch();
+                void currentSubscriptionQuery.refetch();
+                void availablePlansQuery.refetch();
 
-                  return { conflict: null };
-                }}
-              />
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                return { conflict: null };
+              }}
+            />
+          </div>
+        )}
+      </div>
 
       {createDecision?.allowed && isManagerRole(currentUser.profile.role) ? (
         <CreateBillingPlanWizard open={createOpen} onOpenChange={setCreateOpen} />

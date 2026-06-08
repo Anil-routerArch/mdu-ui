@@ -184,7 +184,7 @@ export function HierarchyPage() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 px-5 py-5 sm:px-6 sm:py-6">
       <div className="space-y-1">
         <h1 className="text-3xl font-semibold tracking-tight text-slate-950">Hierarchy</h1>
         <p className="text-sm text-slate-600">

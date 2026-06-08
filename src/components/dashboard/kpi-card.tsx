@@ -1,17 +1,25 @@
-import { ArrowDownRightIcon, ArrowUpRightIcon, MinusIcon } from "lucide-react";
+import {
+  AlertTriangleIcon,
+  ArrowDownRightIcon,
+  ArrowUpRightIcon,
+  Building2Icon,
+  BuildingIcon,
+  Layers3Icon,
+  MapPinnedIcon,
+  MinusIcon,
+  RouterIcon,
+} from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import type { DashboardKpi } from "@/types/dashboard";
 import type { StatusSeverity } from "@/types/common";
 
 type KpiCardProps = {
+  kpiKey: DashboardKpi["key"];
   label: string;
   value: number | string;
   description?: string;
@@ -20,10 +28,46 @@ type KpiCardProps = {
 };
 
 const severityStyles: Record<StatusSeverity, string> = {
-  info: "bg-blue-50 text-blue-700 ring-blue-200/70",
-  success: "bg-emerald-50 text-emerald-700 ring-emerald-200/70",
-  warning: "bg-amber-50 text-amber-700 ring-amber-200/70",
-  critical: "bg-rose-50 text-rose-700 ring-rose-200/70",
+  info: "bg-blue-50 text-blue-600",
+  success: "bg-emerald-50 text-emerald-600",
+  warning: "bg-amber-50 text-amber-600",
+  critical: "bg-rose-50 text-rose-600",
+};
+
+const kpiIconConfig: Record<
+  DashboardKpi["key"],
+  { icon: typeof Building2Icon; iconClassName: string; containerClassName: string }
+> = {
+  sites: {
+    icon: Building2Icon,
+    iconClassName: "text-blue-600",
+    containerClassName: "bg-blue-50",
+  },
+  buildings: {
+    icon: BuildingIcon,
+    iconClassName: "text-violet-600",
+    containerClassName: "bg-violet-50",
+  },
+  floors: {
+    icon: Layers3Icon,
+    iconClassName: "text-emerald-600",
+    containerClassName: "bg-emerald-50",
+  },
+  venues: {
+    icon: MapPinnedIcon,
+    iconClassName: "text-amber-500",
+    containerClassName: "bg-amber-50",
+  },
+  devices: {
+    icon: RouterIcon,
+    iconClassName: "text-blue-600",
+    containerClassName: "bg-blue-50",
+  },
+  alerts: {
+    icon: AlertTriangleIcon,
+    iconClassName: "text-rose-500",
+    containerClassName: "bg-rose-50",
+  },
 };
 
 function TrendIcon({ trend }: { trend?: string }) {
@@ -45,47 +89,61 @@ function TrendIcon({ trend }: { trend?: string }) {
 }
 
 export function KpiCard({
+  kpiKey,
   label,
   value,
-  description,
   trend,
   severity = "info",
 }: KpiCardProps) {
+  const config = kpiIconConfig[kpiKey];
+  const Icon = config.icon;
+
   return (
-    <Card className="border border-slate-200/80 bg-white shadow-sm">
-      <CardHeader className="gap-3">
-        <div className="flex items-start justify-between gap-3">
-          <div className="space-y-1">
-            <CardTitle className="text-sm font-medium text-slate-700">{label}</CardTitle>
-            {description ? (
-              <CardDescription className="text-xs text-slate-500">
-                {description}
-              </CardDescription>
-            ) : null}
-          </div>
-          <Badge
-            variant="outline"
-            className={cn("border-0 ring-1", severityStyles[severity])}
-          >
-            {severity}
-          </Badge>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <p className="text-3xl font-semibold tracking-tight text-slate-950">{value}</p>
-        {trend ? (
-          <div className="flex items-center gap-2 text-xs text-slate-600">
-            <span
+    <Card className="min-h-[8px] rounded-[12px] border border-[#e7edf7] bg-white p-0 py-0 shadow-[0_6px_14px_rgba(15,23,42,0.025)]">
+      <CardContent className="p-0">
+        <div className="flex h-full flex-col justify-between gap-3 ">
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0 ">
+              <p className="text-[12px] font-semibold text-slate-800">{label}</p>
+              <p className="mt-2 text-[2rem] font-semibold leading-none tracking-tight text-[#0f1f46]">
+                {value}
+              </p>
+            </div>
+            <div
               className={cn(
-                "inline-flex size-6 items-center justify-center rounded-full",
-                severityStyles[severity],
+                "flex size-11 shrink-0 items-center justify-center rounded-full",
+                config.containerClassName,
               )}
             >
-              <TrendIcon trend={trend} />
-            </span>
-            <span>{trend}</span>
+              <Icon className={cn("size-4", config.iconClassName)} />
+            </div>
           </div>
-        ) : null}
+
+          <div className="space-y-1">
+            {trend ? (
+              <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-600">
+                <span
+                  className={cn(
+                    "inline-flex size-4.5 items-center justify-center rounded-full",
+                    severityStyles[severity],
+                  )}
+                >
+                  <TrendIcon trend={trend} />
+                </span>
+                <span>{trend}</span>
+              </div>
+            ) : (
+              <span
+                className={cn(
+                  "inline-flex items-center gap-2 text-xs font-medium",
+                  severityStyles[severity],
+                )}
+              >
+                <span className="rounded-full px-2 py-1">{severity}</span>
+              </span>
+            )}
+          </div>
+        </div>
       </CardContent>
     </Card>
   );

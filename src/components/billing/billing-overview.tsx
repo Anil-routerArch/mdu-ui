@@ -21,10 +21,10 @@ export function BillingOverview({
 
   return (
     <Card className="border border-slate-200/80 bg-white shadow-sm">
-      <CardHeader>
+      <CardHeader className="px-0 pb-4">
         <CardTitle className="text-base text-slate-950">Billing Overview</CardTitle>
       </CardHeader>
-      <CardContent className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+      <CardContent className="grid gap-4 p-0 md:grid-cols-2 xl:grid-cols-5">
         <div className="rounded-xl border border-slate-200/70 bg-slate-50/60 p-4">
           <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Scope</p>
           <p className="mt-2 text-sm font-medium text-slate-950">{scopeSummary}</p>

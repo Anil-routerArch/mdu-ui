@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  ChevronRightIcon,
   Building2Icon,
   CreditCardIcon,
   FolderTreeIcon,
@@ -14,7 +15,6 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { APP_MODULES } from "@/lib/constants/modules";
 import { getVisibleModules } from "@/lib/rbac/module-access";
@@ -54,6 +54,7 @@ export function Sidebar({ onNavigate }: SidebarProps) {
   const currentUser = useAuthStore((state) => state.currentUser);
   const selectedScope = useScopeStore((state) => state.selectedScope);
   const setActiveModule = useUiStore((state) => state.setActiveModule);
+  const sidebarCollapsed = useUiStore((state) => state.sidebarCollapsed);
 
   if (!currentUser) {
     return null;
@@ -66,20 +67,14 @@ export function Sidebar({ onNavigate }: SidebarProps) {
   const activeModule = getModuleFromPath(pathname);
 
   return (
-    <div className="flex h-full flex-col border-r border-slate-200 bg-white">
-      <div className="px-4 py-4">
-        <div className="rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 p-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-            Navigation
-          </p>
-          <p className="mt-1 text-sm text-slate-600">
-            Operational modules for the selected scope.
-          </p>
-        </div>
-      </div>
-
-      <ScrollArea className="flex-1 px-3">
-        <nav className="space-y-1 pb-4">
+    <div className="flex h-full flex-col bg-white">
+      <div
+        className={[
+          "flex-1 overflow-hidden",
+          sidebarCollapsed ? "px-2.5 pt-4" : "px-3.5 pt-5",
+        ].join(" ")}
+      >
+        <nav className={sidebarCollapsed ? "space-y-2 pb-5" : "space-y-1.5 pb-5"}>
           {visibleModules.map((module) => {
             const Icon = moduleIcons[module.key];
             const isActive = module.key === activeModule;
@@ -90,49 +85,82 @@ export function Sidebar({ onNavigate }: SidebarProps) {
                 asChild
                 variant="ghost"
                 className={[
-                  "h-12 w-full justify-start rounded-xl px-3 text-sm font-medium",
+                  sidebarCollapsed
+                    ? "!h-[30px] w-full justify-center rounded-2xl px-0"
+                    : "!h-[30px] w-full justify-start rounded-2xl px-3.5",
+                  "text-sm font-medium transition-all",
                   isActive
-                    ? "bg-blue-50 text-blue-700 hover:bg-blue-50 hover:text-blue-700"
-                    : "text-slate-700 hover:bg-slate-100 hover:text-slate-900",
+                    ? "border border-[#dbe8ff] bg-[linear-gradient(180deg,#eef4ff_0%,#f8fbff_100%)] text-[#2563eb] shadow-[0_10px_20px_rgba(37,99,235,0.08)] hover:bg-[linear-gradient(180deg,#eef4ff_0%,#f8fbff_100%)] hover:text-[#2563eb]"
+                    : "text-slate-700 hover:bg-[#f6f8fc] hover:text-slate-900",
                 ].join(" ")}
               >
                 <Link
                   href={module.href}
+                  title={sidebarCollapsed ? module.label : undefined}
+                  aria-label={module.label}
                   onClick={() => {
                     setActiveModule(module.key);
                     onNavigate?.();
                   }}
+                  className={sidebarCollapsed ? "flex h-full w-full items-center justify-center" : "flex h-full w-full items-center"}
                 >
-                  <Icon className="mr-3 size-4" />
-                  {module.label}
+                  <Icon className={sidebarCollapsed ? "size-4 shrink-0" : "mr-3 size-4 shrink-0"} />
+                  {!sidebarCollapsed ? (
+                    <>
+                      <span className="flex-1 text-left">{module.label}</span>
+                      <ChevronRightIcon
+                        className={[
+                          "size-4 shrink-0 transition-opacity",
+                          isActive ? "opacity-100" : "opacity-40",
+                        ].join(" ")}
+                      />
+                    </>
+                  ) : null}
                 </Link>
               </Button>
             );
           })}
         </nav>
-      </ScrollArea>
+      </div>
 
-      <div className="px-4 pb-4">
-        <Separator className="mb-4" />
-        <div className="space-y-1">
+      <div className={sidebarCollapsed ? "mt-auto px-2.5 pb-5" : "mt-auto px-4 pb-5"}>
+        <Separator className="mb-4 bg-[#eef2f8]" />
+        <div className="space-y-1.5">
           <Button
             variant="ghost"
-            className="h-10 w-full justify-start rounded-xl px-3 text-slate-700 hover:bg-slate-100"
+            title={sidebarCollapsed ? "System Health" : undefined}
+            aria-label="System Health"
+            className={[
+              sidebarCollapsed
+                ? "!h-[30px] w-full justify-center rounded-2xl px-0"
+                : "!h-[30px] w-full justify-start rounded-2xl px-3",
+              "text-slate-700 hover:bg-[#f6f8fc]",
+            ].join(" ")}
           >
-            <ShieldCheckIcon className="mr-3 size-4" />
-            System Health
+            <ShieldCheckIcon className={sidebarCollapsed ? "size-4" : "mr-3 size-4"} />
+            {!sidebarCollapsed ? "System Health" : null}
           </Button>
           <Button
             variant="ghost"
-            className="h-10 w-full justify-start rounded-xl px-3 text-slate-700 hover:bg-slate-100"
+            title={sidebarCollapsed ? "Reports" : undefined}
+            aria-label="Reports"
+            className={[
+              sidebarCollapsed
+                ? "!h-[30px] w-full justify-center rounded-2xl px-0"
+                : "!h-[30px] w-full justify-start rounded-2xl px-3",
+              "text-slate-700 hover:bg-[#f6f8fc]",
+            ].join(" ")}
           >
-            <LayoutDashboardIcon className="mr-3 size-4" />
-            Reports
+            <LayoutDashboardIcon className={sidebarCollapsed ? "size-4" : "mr-3 size-4"} />
+            {!sidebarCollapsed ? "Reports" : null}
           </Button>
         </div>
-        <p className="mt-4 text-xs text-slate-400">
-          © 2026 MDU Platform
-        </p>
+        {!sidebarCollapsed ? (
+          <div className="mt-6 border-t border-[#eef2f8] pt-4 text-xs leading-5 text-slate-400">
+            <p>© 2026 MDU Platform</p>
+            <p>All rights reserved.</p>
+          </div>
+        ) : null}
       </div>
     </div>
   );
