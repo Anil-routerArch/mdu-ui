@@ -43,12 +43,12 @@ export function AppShell({ children }: AppShellProps) {
   }, [currentUser, selectedScope, setSelectedNode]);
 
   return (
-    <div className="h-screen overflow-hidden bg-[#f4f7fb]">
+    <div className="h-screen overflow-hidden bg-[var(--mdu-app-bg)] text-[var(--mdu-text)]">
       <TopAppHeader />
       <div className="flex h-[calc(100vh-60px)] overflow-hidden">
         <aside
           className={[
-            "hidden h-full shrink-0 border-r border-[#e6edf7] bg-white lg:block",
+            "hidden h-full shrink-0 border-r border-[var(--mdu-border)] bg-[var(--mdu-surface)] lg:block",
             sidebarCollapsed ? "w-[92px]" : "w-[246px]",
           ].join(" ")}
         >
@@ -62,7 +62,7 @@ export function AppShell({ children }: AppShellProps) {
         </Sheet>
 
         <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-          <div className="border-b border-[#e8eef7] bg-[#f7faff] px-0 py-0 sm:px-0">
+          <div className="border-b border-[var(--mdu-border)] bg-[var(--mdu-surface-muted)] px-0 py-0 sm:px-0">
             <ScopeBreadcrumbBar />
           </div>
           <main className="flex-1 overflow-y-auto overflow-x-hidden">{children}</main>

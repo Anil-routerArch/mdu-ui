@@ -35,12 +35,12 @@ export function UserProfileMenu() {
           variant="ghost"
           className="h-9 rounded-xl px-2.5 text-white hover:bg-white/10 hover:text-white"
         >
-          <div className="mr-2.5 flex size-7 items-center justify-center rounded-full bg-white text-slate-900">
+          <div className="mr-2.5 flex size-7 items-center justify-center rounded-full bg-white text-[var(--mdu-text-strong)]">
             <UserCircle2Icon className="size-4" />
           </div>
           <div className="hidden min-w-0 text-left sm:block">
             <div className="truncate text-xs font-medium">{currentUser.name}</div>
-            <div className="truncate text-[11px] text-slate-300">
+            <div className="truncate text-[11px] text-blue-100/80">
               {currentUser.profile.role}
             </div>
           </div>

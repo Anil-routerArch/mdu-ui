@@ -132,21 +132,21 @@ function DeviceSummaryPanel({ devices }: { devices: Device[] }) {
   });
 
   return (
-    <Card className="h-[368px] rounded-[24px] border border-[#e8eef7] bg-white py-0 shadow-[0_16px_36px_rgba(15,23,42,0.05)]">
+    <Card className="h-[368px] rounded-[24px] border border-[var(--mdu-border)] bg-[var(--mdu-surface)] py-0 shadow-[var(--mdu-shadow-strong)]">
       <CardContent className="p-0">
-        <div className="flex items-center justify-between border-b border-[#edf2f8] px-5 py-4">
+        <div className="flex items-center justify-between border-b border-[var(--mdu-border-soft)] px-5 py-4">
           <div>
-            <h3 className="text-xl font-semibold text-[#0f1f46]">Device Summary by Type</h3>
-            <p className="text-sm text-slate-500">Infrastructure-only inventory status.</p>
+            <h3 className="text-xl font-semibold text-[var(--mdu-text)]">Device Summary by Type</h3>
+            <p className="text-sm text-[var(--mdu-text-muted)]">Infrastructure-only inventory status.</p>
           </div>
-          <Button variant="ghost" asChild className="text-[#2563eb] hover:bg-[#f2f7ff]">
+          <Button variant="ghost" asChild className="text-[var(--mdu-primary)] hover:bg-[var(--mdu-primary-soft)]">
             <Link href="/devices">View all</Link>
           </Button>
         </div>
         <div className="h-[calc(368px-80px)] overflow-x-auto px-5 pb-4 pt-2">
           <table className="w-full min-w-[520px] text-sm">
             <thead>
-              <tr className="text-left text-xs font-semibold uppercase tracking-wide text-slate-400">
+              <tr className="text-left text-xs font-semibold uppercase tracking-wide text-[var(--mdu-text-soft)]">
                 <th className="pb-3">Device Type</th>
                 <th className="pb-3">Total</th>
                 <th className="pb-3">Online</th>
@@ -157,8 +157,8 @@ function DeviceSummaryPanel({ devices }: { devices: Device[] }) {
             </thead>
             <tbody>
               {rows.map((row) => (
-                <tr key={row.label} className="border-t border-[#edf2f8] text-slate-700">
-                  <td className="py-2.5 font-medium text-slate-800">{row.label}</td>
+                <tr key={row.label} className="border-t border-[var(--mdu-border-soft)] text-[var(--mdu-text)]">
+                  <td className="py-2.5 font-medium text-[var(--mdu-text-strong)]">{row.label}</td>
                   <td className="py-2.5">{row.total}</td>
                   <td className="py-2.5">{row.online}</td>
                   <td className="py-2.5">{row.warning}</td>
@@ -182,7 +182,7 @@ function InfrastructureTrendPanel({ devices }: { devices: Device[] }) {
   const chartConfig = {
     endpoints: {
       label: "Endpoints",
-      color: "#2563eb",
+      color: "var(--mdu-primary)",
     },
   } satisfies ChartConfig;
   const chartData = series.map((point) => ({
@@ -191,19 +191,19 @@ function InfrastructureTrendPanel({ devices }: { devices: Device[] }) {
   }));
 
   return (
-    <Card className="h-[368px] rounded-[24px] border border-[#e8eef7] bg-white py-0 shadow-[0_16px_36px_rgba(15,23,42,0.05)]">
+    <Card className="h-[368px] rounded-[24px] border border-[var(--mdu-border)] bg-[var(--mdu-surface)] py-0 shadow-[var(--mdu-shadow-strong)]">
       <CardContent className="flex h-full flex-col p-0">
-        <div className="flex flex-col gap-2 border-b border-[#edf2f8] px-5 py-3.5 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex flex-col gap-2 border-b border-[var(--mdu-border-soft)] px-5 py-3.5 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
-            <h3 className="text-[1.05rem] font-semibold leading-tight text-[#0f1f46]">Infrastructure Trend</h3>
-            <p className="mt-1 text-[13px] leading-5 text-slate-500">Live operational volume across the selected scope.</p>
+            <h3 className="text-[1.05rem] font-semibold leading-tight text-[var(--mdu-text)]">Infrastructure Trend</h3>
+            <p className="mt-1 text-[13px] leading-5 text-[var(--mdu-text-muted)]">Live operational volume across the selected scope.</p>
           </div>
-          <Button variant="outline" className="h-9 shrink-0 rounded-2xl border-[#dce7f8] bg-white px-3 text-[13px] text-slate-600">
+          <Button variant="outline" className="h-9 shrink-0 rounded-2xl border-[var(--mdu-border-strong)] bg-[var(--mdu-surface)] px-3 text-[13px] text-[var(--mdu-text-muted)]">
             Last 24 Hours
           </Button>
         </div>
         <div className="flex flex-1 flex-col px-5 pb-4 pt-3">
-          <div className="h-[114px] rounded-2xl bg-[linear-gradient(180deg,#fbfdff_0%,#ffffff_100%)] px-2 py-1">
+          <div className="h-[114px] rounded-2xl bg-[var(--mdu-surface-elevated)] px-2 py-1">
             <ChartContainer className="h-full w-full" config={chartConfig}>
               <LineChart
                 accessibilityLayer
@@ -236,19 +236,19 @@ function InfrastructureTrendPanel({ devices }: { devices: Device[] }) {
               </LineChart>
             </ChartContainer>
           </div>
-          <div className="mt-2 grid grid-cols-2 gap-2 rounded-2xl bg-[#f8fbff] px-3 py-2.5">
+          <div className="mt-2 grid grid-cols-2 gap-2 rounded-2xl bg-[var(--mdu-surface-soft)] px-3 py-2.5">
             <div>
-              <p className="text-[1.1rem] font-semibold leading-none text-[#0f1f46]">
+              <p className="text-[1.1rem] font-semibold leading-none text-[var(--mdu-text)]">
                 {currentValue.toLocaleString()}
               </p>
-              <p className="mt-1 text-[11px] leading-4 text-slate-500">Current Active Endpoints</p>
+              <p className="mt-1 text-[11px] leading-4 text-[var(--mdu-text-muted)]">Current Active Endpoints</p>
             </div>
             <div className="text-right">
-              <p className="inline-flex items-center gap-1 text-[1rem] font-semibold text-emerald-600">
+              <p className="inline-flex items-center gap-1 text-[1rem] font-semibold text-[var(--mdu-success)]">
                 <ArrowUpIcon className="size-3.5" />
                 {Math.abs(delta).toLocaleString()}
               </p>
-              <p className="mt-1 text-[11px] leading-4 text-slate-500">vs previous window</p>
+              <p className="mt-1 text-[11px] leading-4 text-[var(--mdu-text-muted)]">vs previous window</p>
             </div>
           </div>
         </div>
@@ -279,10 +279,10 @@ function DashboardContent({
       <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
         <div className="space-y-1">
           <div>
-            <h1 className="text-[2rem] font-semibold tracking-tight text-[#0f1f46]">
+            <h1 className="text-[2rem] font-semibold tracking-tight text-[var(--mdu-text)]">
               Dashboard
             </h1>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-[var(--mdu-text-muted)]">
               Overview of your environment within the selected scope.
             </p>
           </div>
@@ -292,7 +292,7 @@ function DashboardContent({
             type="button"
             variant="ghost"
             onClick={onRefresh}
-            className="hidden items-center gap-2 rounded-[10px] border border-[#e7eef8] bg-white px-4 py-2 text-sm text-slate-500 shadow-[0_6px_16px_rgba(15,23,42,0.04)] hover:bg-slate-50 md:inline-flex"
+            className="hidden items-center gap-2 rounded-[10px] border border-[var(--mdu-border)] bg-[var(--mdu-surface)] px-4 py-2 text-sm text-[var(--mdu-text-muted)] shadow-[var(--mdu-shadow-card)] hover:bg-[var(--mdu-surface-soft)] md:inline-flex"
           >
             <RefreshCwIcon className="size-4" />
             <span>Last updated: {formatUpdatedTime(data)}</span>
@@ -354,19 +354,19 @@ function DashboardContent({
         <QuickActionsPanel user={user} selectedScope={selectedScope} />
       </div>
 
-      <div className="flex flex-col gap-3 rounded-[14px] border border-[#dfe8f7] bg-[linear-gradient(180deg,#f8fbff_0%,#f3f8ff_100%)] px-4 py-3 text-sm text-slate-600 shadow-[0_10px_24px_rgba(15,23,42,0.04)] sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 rounded-[14px] border border-[var(--mdu-border)] bg-[linear-gradient(180deg,var(--mdu-surface-soft)_0%,var(--mdu-primary-soft-3)_100%)] px-4 py-3 text-sm text-[var(--mdu-text-muted)] shadow-[var(--mdu-shadow-card)] sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-3">
-          <span className="mt-0.5 inline-flex size-6 items-center justify-center rounded-full bg-white text-[#2563eb] shadow-[0_2px_8px_rgba(37,99,235,0.12)]">
+          <span className="mt-0.5 inline-flex size-6 items-center justify-center rounded-full bg-[var(--mdu-surface)] text-[var(--mdu-primary)] shadow-[var(--mdu-shadow-soft)]">
             <TrendingUpIcon className="size-4" />
           </span>
           <div>
-            <p className="font-medium text-slate-700">
+            <p className="font-medium text-[var(--mdu-text)]">
               You are viewing data within your current scope.
             </p>
-            <p className="text-slate-500">Scope: {scopeSummary}</p>
+            <p className="text-[var(--mdu-text-muted)]">Scope: {scopeSummary}</p>
           </div>
         </div>
-        <Button asChild variant="link" className="h-auto px-0 text-[#2563eb]">
+        <Button asChild variant="link" className="h-auto px-0 text-[var(--mdu-primary)]">
           <Link href="/hierarchy">Change Scope</Link>
         </Button>
       </div>
@@ -530,7 +530,7 @@ export function DashboardPage() {
 
   return (
     <div className="px-0 py-0 sm:px-0 sm:py-0">
-      <Card className="border border-[#e7eef8] bg-transparent py-0 shadow-none">
+      <Card className="border border-[var(--mdu-border)] bg-transparent py-0 shadow-none">
         <CardContent className="p-0">{content}</CardContent>
       </Card>
     </div>

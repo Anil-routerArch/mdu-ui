@@ -24,36 +24,36 @@ export function CurrentSubscriptionDetail({
   }
 
   return (
-    <Card className="border border-slate-200/80 bg-white shadow-sm">
+    <Card className="border border-[var(--mdu-border)] bg-[var(--mdu-surface)] shadow-[var(--mdu-shadow-card)]">
       <CardHeader className="space-y-2">
         <div className="flex items-center justify-between gap-3">
-          <CardTitle className="text-base text-slate-950">Current Subscription</CardTitle>
+          <CardTitle className="text-base text-[var(--mdu-text)]">Current Subscription</CardTitle>
           <BillingStatusBadge status={subscription.status} />
         </div>
       </CardHeader>
-      <CardContent className="grid gap-4 lg:grid-cols-2 text-sm text-slate-700">
+      <CardContent className="grid gap-4 text-sm text-[var(--mdu-text-muted)] lg:grid-cols-2">
         <div className="space-y-3">
           <div>
-            <span className="text-slate-500">Plan:</span> {subscription.planName}
+            <span className="text-[var(--mdu-text-soft)]">Plan:</span> {subscription.planName}
           </div>
           <div>
-            <span className="text-slate-500">Type:</span>{" "}
+            <span className="text-[var(--mdu-text-soft)]">Type:</span>{" "}
             {subscription.planType.replaceAll("_", " ")}
           </div>
           <div>
-            <span className="text-slate-500">Renews:</span>{" "}
+            <span className="text-[var(--mdu-text-soft)]">Renews:</span>{" "}
             {subscription.renewsAt ?? "No renewal scheduled"}
           </div>
         </div>
         <div className="space-y-3">
           <div>
-            <span className="text-slate-500">Usage:</span>{" "}
+            <span className="text-[var(--mdu-text-soft)]">Usage:</span>{" "}
             {subscription.planType === "fixed_device"
               ? `${subscription.usage.deviceCountUsed ?? 0} / ${subscription.usage.deviceLimit ?? "N/A"} devices`
               : `${subscription.usage.billableConnectionCount ?? 0} billable connections`}
           </div>
           <div>
-            <span className="text-slate-500">Scope:</span>{" "}
+            <span className="text-[var(--mdu-text-soft)]">Scope:</span>{" "}
             {subscription.scopePath.map((item) => item.name).join(" / ")}
           </div>
         </div>

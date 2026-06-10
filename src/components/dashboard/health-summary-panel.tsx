@@ -23,29 +23,29 @@ const healthItems = [
     key: "online",
     label: "Online",
     icon: CheckCircle2Icon,
-    textClassName: "text-emerald-700",
-    bgClassName: "bg-emerald-50",
+    textClassName: "text-[var(--mdu-success)]",
+    bgClassName: "bg-[var(--mdu-success-soft)]",
   },
   {
     key: "warning",
     label: "Warning",
     icon: AlertTriangleIcon,
-    textClassName: "text-amber-700",
-    bgClassName: "bg-amber-50",
+    textClassName: "text-[var(--mdu-warning)]",
+    bgClassName: "bg-[var(--mdu-warning-soft)]",
   },
   {
     key: "offline",
     label: "Offline",
     icon: WifiOffIcon,
-    textClassName: "text-rose-700",
-    bgClassName: "bg-rose-50",
+    textClassName: "text-[var(--mdu-danger)]",
+    bgClassName: "bg-[var(--mdu-danger-soft)]",
   },
   {
     key: "unknown",
     label: "Unknown",
     icon: ActivityIcon,
-    textClassName: "text-slate-700",
-    bgClassName: "bg-slate-100",
+    textClassName: "text-[var(--mdu-text-muted)]",
+    bgClassName: "bg-[var(--mdu-neutral-soft)]",
   },
 ] as const;
 
@@ -66,7 +66,7 @@ export function HealthSummaryPanel({ health }: HealthSummaryPanelProps) {
   const warningPercentage = getPercentage(health.warning, health.totalDevices);
   const offlinePercentage = getPercentage(health.offline, health.totalDevices);
   const donutStyle = {
-    background: `conic-gradient(#22c55e 0 ${onlinePercentage}%, #fbbf24 ${onlinePercentage}% ${onlinePercentage + warningPercentage}%, #ef4444 ${onlinePercentage + warningPercentage}% ${onlinePercentage + warningPercentage + offlinePercentage}%, #cbd5e1 ${onlinePercentage + warningPercentage + offlinePercentage}% 100%)`,
+    background: `conic-gradient(var(--mdu-success) 0 ${onlinePercentage}%, var(--mdu-warning) ${onlinePercentage}% ${onlinePercentage + warningPercentage}%, var(--mdu-danger) ${onlinePercentage + warningPercentage}% ${onlinePercentage + warningPercentage + offlinePercentage}%, var(--mdu-border-strong) ${onlinePercentage + warningPercentage + offlinePercentage}% 100%)`,
   };
   const topIssues = [
     health.offline > 0
@@ -84,16 +84,16 @@ export function HealthSummaryPanel({ health }: HealthSummaryPanelProps) {
   ].filter((issue): issue is string => Boolean(issue));
 
   return (
-    <Card className="h-[358px] rounded-[14px] border border-[#e6edf7] bg-white py-0 shadow-[0_12px_26px_rgba(15,23,42,0.04)]">
+    <Card className="h-[358px] rounded-[14px] border border-[var(--mdu-border)] bg-[var(--mdu-surface)] py-0 shadow-[var(--mdu-shadow-card)]">
       <CardHeader className="gap-1.5 py-3.5">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <CardTitle className="text-[1.05rem] text-[#0f1f46]">Environment Health</CardTitle>
-            <CardDescription className="text-[13px] leading-5 text-slate-500">
+            <CardTitle className="text-[1.05rem] text-[var(--mdu-text)]">Environment Health</CardTitle>
+            <CardDescription className="text-[13px] leading-5 text-[var(--mdu-text-muted)]">
               Operational status within the selected scope.
             </CardDescription>
           </div>
-          <Button asChild variant="ghost" className="text-[#2563eb] hover:bg-[#f2f7ff]">
+          <Button asChild variant="ghost" className="text-[var(--mdu-primary)] hover:bg-[var(--mdu-primary-soft)]">
             <Link href="/devices">
               View all
               <ChevronRightIcon className="size-4" />
@@ -105,11 +105,11 @@ export function HealthSummaryPanel({ health }: HealthSummaryPanelProps) {
         <div className="grid gap-3 md:grid-cols-[126px_1fr] md:items-center">
           <div className="flex items-center justify-center">
             <div className="relative flex size-[92px] items-center justify-center rounded-full" style={donutStyle}>
-              <div className="flex size-[68px] flex-col items-center justify-center rounded-full bg-white text-center shadow-[inset_0_0_0_1px_rgba(226,232,240,0.8)]">
-                <p className="text-[1.1rem] font-semibold leading-none text-[#0f1f46]">
+              <div className="flex size-[68px] flex-col items-center justify-center rounded-full bg-[var(--mdu-surface)] text-center shadow-[inset_0_0_0_1px_var(--mdu-border)]">
+                <p className="text-[1.1rem] font-semibold leading-none text-[var(--mdu-text)]">
                   {health.totalDevices}
                 </p>
-                <p className="mt-1 text-[10px] text-slate-500">Total Devices</p>
+                <p className="mt-1 text-[10px] text-[var(--mdu-text-muted)]">Total Devices</p>
               </div>
             </div>
           </div>
@@ -127,11 +127,11 @@ export function HealthSummaryPanel({ health }: HealthSummaryPanelProps) {
                     >
                       <Icon className={`size-3 ${item.textClassName}`} />
                     </span>
-                    <span className="text-[0.95rem] font-medium text-slate-700">{item.label}</span>
+                    <span className="text-[0.95rem] font-medium text-[var(--mdu-text)]">{item.label}</span>
                   </div>
                   <div className="text-right">
-                    <p className="text-[0.95rem] font-semibold text-slate-900">{count.toLocaleString()}</p>
-                    <p className="text-[0.95rem] text-slate-500">
+                    <p className="text-[0.95rem] font-semibold text-[var(--mdu-text-strong)]">{count.toLocaleString()}</p>
+                    <p className="text-[0.95rem] text-[var(--mdu-text-muted)]">
                       {getPercentage(count, health.totalDevices)}%
                     </p>
                   </div>
@@ -141,13 +141,13 @@ export function HealthSummaryPanel({ health }: HealthSummaryPanelProps) {
           </div>
         </div>
 
-        <div className="overflow-hidden border-t border-[#edf2f8] pt-1 xl:border-l xl:border-t-0 xl:pl-4 xl:pt-0">
+        <div className="overflow-hidden border-t border-[var(--mdu-border-soft)] pt-1 xl:border-l xl:border-t-0 xl:pl-4 xl:pt-0">
           <div className="mb-2 flex items-center justify-between gap-2">
             <div>
-              <p className="text-[0.95rem] font-semibold text-slate-900">Top Issues</p>
-              <p className="text-[0.9rem] text-slate-500">Operational highlights from this scope.</p>
+              <p className="text-[0.95rem] font-semibold text-[var(--mdu-text-strong)]">Top Issues</p>
+              <p className="text-[0.9rem] text-[var(--mdu-text-muted)]">Operational highlights from this scope.</p>
             </div>
-            <Badge variant="outline" className="border-[#dce7f8] bg-[#f7faff] text-slate-600">
+            <Badge variant="outline" className="border-[var(--mdu-border-strong)] bg-[var(--mdu-surface-muted)] text-[var(--mdu-text-muted)]">
               {health.totalDevices} devices
             </Badge>
           </div>
@@ -159,23 +159,23 @@ export function HealthSummaryPanel({ health }: HealthSummaryPanelProps) {
                     className={[
                       "inline-flex size-2.5 rounded-full",
                       index === 0
-                        ? "bg-rose-500"
+                        ? "bg-[var(--mdu-danger)]"
                         : index === 1
-                          ? "bg-amber-500"
+                          ? "bg-[var(--mdu-warning)]"
                           : index === 2
-                            ? "bg-slate-400"
-                            : "bg-emerald-500",
+                            ? "bg-[var(--mdu-text-soft)]"
+                            : "bg-[var(--mdu-success)]",
                     ].join(" ")}
                   />
-                  <p className="text-[0.95rem] text-slate-700">{issue}</p>
+                  <p className="text-[0.95rem] text-[var(--mdu-text)]">{issue}</p>
                 </div>
-                <Button variant="link" className="h-auto px-0 text-[0.95rem] text-[#2563eb]">
+                <Button variant="link" className="h-auto px-0 text-[0.95rem] text-[var(--mdu-primary)]">
                   View
                 </Button>
               </div>
             ))}
           </div>
-          <Button variant="link" className="mt-2 h-auto px-0 text-[0.95rem] text-[#2563eb]">
+          <Button variant="link" className="mt-2 h-auto px-0 text-[0.95rem] text-[var(--mdu-primary)]">
             Go to System Health
           </Button>
         </div>

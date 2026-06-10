@@ -175,7 +175,7 @@ export function ScopeBreadcrumbBar() {
 
   if (!selectedScope) {
     return (
-      <div className="rounded-[18px] border border-[#e7eef8] bg-white p-2.5 shadow-[0_12px_24px_rgba(15,23,42,0.04)]">
+      <div className="rounded-[18px] border border-[var(--mdu-border)] bg-[var(--mdu-surface)] p-2.5 shadow-[var(--mdu-shadow-card)]">
         <EmptyState
           title="No scope selected"
           description="Select a permitted hierarchy scope to load scoped modules."
@@ -200,10 +200,10 @@ export function ScopeBreadcrumbBar() {
   };
 
   return (
-    <div className="border border-[#e7eef8] bg-white px-3 py-2 shadow-none">
+    <div className="border border-[var(--mdu-border)] bg-[var(--mdu-surface)] px-3 py-2 shadow-none">
       <div className="flex flex-col gap-2 xl:flex-row xl:items-center xl:justify-between">
         <Breadcrumb className="min-w-0 flex-1">
-          <BreadcrumbList className="gap-y-1.5 text-[12px] text-slate-500">
+          <BreadcrumbList className="gap-y-1.5 text-[12px] text-[var(--mdu-text-muted)]">
             {selectedScope.path.map((item, index) => {
               const alternatives = getAccessibleAlternatives(item, assignmentRoots);
               const isLast = index === selectedScope.path.length - 1;
@@ -220,8 +220,8 @@ export function ScopeBreadcrumbBar() {
                             className={[
                               "h-7 rounded-lg px-2 text-[12px]",
                               isLast
-                                ? "border border-[#dbe8ff] bg-[#f5f9ff] text-[#2563eb] hover:bg-[#edf5ff] hover:text-[#1d4ed8]"
-                                : "text-slate-700 hover:bg-slate-100",
+                                ? "border border-[var(--mdu-border-strong)] bg-[var(--mdu-primary-soft)] text-[var(--mdu-primary)] hover:bg-[var(--mdu-primary-soft-2)] hover:text-[var(--mdu-primary-strong)]"
+                                : "text-[var(--mdu-text)] hover:bg-[var(--mdu-neutral-soft)]",
                             ].join(" ")}
                           >
                             <span>{item.name}</span>
@@ -247,8 +247,8 @@ export function ScopeBreadcrumbBar() {
                         className={[
                           "h-7 rounded-lg px-2 text-[12px] font-normal",
                           isLast
-                            ? "border border-[#dbe8ff] bg-[#f5f9ff] text-[#2563eb] hover:bg-[#edf5ff] hover:text-[#1d4ed8]"
-                            : "text-slate-700 hover:bg-slate-100 hover:text-slate-900",
+                            ? "border border-[var(--mdu-border-strong)] bg-[var(--mdu-primary-soft)] text-[var(--mdu-primary)] hover:bg-[var(--mdu-primary-soft-2)] hover:text-[var(--mdu-primary-strong)]"
+                            : "text-[var(--mdu-text)] hover:bg-[var(--mdu-neutral-soft)] hover:text-[var(--mdu-text-strong)]",
                         ].join(" ")}
                       >
                         <BreadcrumbPage className="text-inherit">{item.name}</BreadcrumbPage>
@@ -267,7 +267,7 @@ export function ScopeBreadcrumbBar() {
             type="button"
             variant="ghost"
             onClick={handleRefresh}
-            className="h-8 rounded-xl px-2.5 text-[12px] text-slate-500 hover:bg-slate-50 hover:text-slate-700"
+            className="h-8 rounded-xl px-2.5 text-[12px] text-[var(--mdu-text-muted)] hover:bg-[var(--mdu-surface-soft)] hover:text-[var(--mdu-text)]"
           >
             <Clock3Icon className="size-3.5" />
             <span>Last updated: {lastUpdated}</span>
@@ -276,7 +276,7 @@ export function ScopeBreadcrumbBar() {
             type="button"
             variant="ghost"
             size="icon"
-            className="size-8 rounded-xl border border-[#e8eef7] bg-[#f8fbff] text-slate-600 hover:bg-[#f2f7ff]"
+            className="size-8 rounded-xl border border-[var(--mdu-border)] bg-[var(--mdu-surface-soft)] text-[var(--mdu-text-muted)] hover:bg-[var(--mdu-primary-soft)]"
             onClick={handleRefresh}
           >
             <RefreshCwIcon className="size-3.5" />
@@ -295,7 +295,7 @@ export function ScopeBreadcrumbBar() {
               <Button
                 type="button"
                 variant="outline"
-                className="h-8 rounded-xl border-[#e8eef7] bg-white px-2.5 text-[12px] text-slate-700 hover:bg-slate-50"
+                className="h-8 rounded-xl border-[var(--mdu-border)] bg-[var(--mdu-surface)] px-2.5 text-[12px] text-[var(--mdu-text)] hover:bg-[var(--mdu-surface-soft)]"
               >
                 <Settings2Icon className="size-3.5" />
                 Customize
@@ -305,12 +305,12 @@ export function ScopeBreadcrumbBar() {
               align="end"
               side="bottom"
               sideOffset={8}
-              className="w-[360px] rounded-2xl border border-[#e7eef8] bg-white p-2 shadow-[0_20px_40px_rgba(15,23,42,0.12)]"
+              className="w-[360px] rounded-2xl border border-[var(--mdu-border)] bg-[var(--mdu-surface)] p-2 shadow-[var(--mdu-shadow-popover)]"
             >
-              <DropdownMenuLabel className="px-2 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+              <DropdownMenuLabel className="px-2 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--mdu-text-soft)]">
                 Select Scope
               </DropdownMenuLabel>
-              <DropdownMenuSeparator className="mx-0 my-2 bg-[#edf2f8]" />
+              <DropdownMenuSeparator className="mx-0 my-2 bg-[var(--mdu-border-soft)]" />
               <Command className="rounded-xl bg-transparent p-0">
                 <CommandInput
                   placeholder="Search hierarchy nodes..."
@@ -332,7 +332,7 @@ export function ScopeBreadcrumbBar() {
           <Button
             type="button"
             variant="ghost"
-            className="hidden h-8 rounded-xl bg-[#f8fbff] px-2.5 text-[12px] text-slate-600 hover:bg-[#f1f5fb] xl:inline-flex"
+            className="hidden h-8 rounded-xl bg-[var(--mdu-surface-soft)] px-2.5 text-[12px] text-[var(--mdu-text-muted)] hover:bg-[var(--mdu-primary-soft)] xl:inline-flex"
             onClick={() => setSelectedNode(selectedScope.nodeId)}
           >
             {lastScopeName}

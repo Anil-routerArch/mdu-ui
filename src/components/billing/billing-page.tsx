@@ -205,11 +205,11 @@ export function BillingPage() {
   }
 
   return (
-    <div className="space-y-4 px-5  py-5 sm:px-6 sm:py-6">
+    <div className="space-y-4 px-5 py-5 sm:px-6 sm:py-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-1">
-          <h1 className="text-3xl font-semibold tracking-tight text-slate-950">Billing</h1>
-          <p className="text-sm text-slate-600">
+          <h1 className="text-3xl font-semibold tracking-tight text-[var(--mdu-text)]">Billing</h1>
+          <p className="text-sm text-[var(--mdu-text-muted)]">
             Role-aware billing workflows for {selectedScope.path.map((item) => item.name).join(" / ")}
           </p>
         </div>

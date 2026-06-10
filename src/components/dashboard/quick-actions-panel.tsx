@@ -67,11 +67,11 @@ export function QuickActionsPanel({ user, selectedScope }: QuickActionsPanelProp
   );
 
   return (
-    <Card className="h-[368px] rounded-[14px] border border-[#e6edf7] bg-white py-0 shadow-[0_12px_26px_rgba(15,23,42,0.04)]">
+    <Card className="h-[368px] rounded-[14px] border border-[var(--mdu-border)] bg-[var(--mdu-surface)] py-0 shadow-[var(--mdu-shadow-card)]">
       <CardHeader className="gap-2">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <CardTitle className="text-base text-[#0f1f46]">Quick Actions</CardTitle>
+            <CardTitle className="text-base text-[var(--mdu-text)]">Quick Actions</CardTitle>
           </div>
         </div>
       </CardHeader>
@@ -104,7 +104,7 @@ export function QuickActionsPanel({ user, selectedScope }: QuickActionsPanelProp
             <Link
               key={action.key}
               href={action.href}
-              className="group rounded-[12px] border border-[#e7eef8] bg-white p-3 transition-all hover:border-[#d8e5fb] hover:bg-[#fbfdff]"
+              className="group rounded-[12px] border border-[var(--mdu-border)] bg-[var(--mdu-surface)] p-3 transition-all hover:border-[var(--mdu-border-strong)] hover:bg-[var(--mdu-surface-soft)]"
             >
               <div className="flex flex-col items-center gap-2.5 text-center">
                 <span
@@ -113,7 +113,7 @@ export function QuickActionsPanel({ user, selectedScope }: QuickActionsPanelProp
                   <Icon className={`size-4 ${iconClassName}`} />
                 </span>
                 <div>
-                  <p className="text-[13px] font-semibold text-slate-900">{action.label}</p>
+                  <p className="text-[13px] font-semibold text-[var(--mdu-text-strong)]">{action.label}</p>
                 </div>
               </div>
             </Link>

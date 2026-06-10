@@ -98,7 +98,7 @@ export function TopologyCanvas({
             elementsSelectable
             proOptions={{ hideAttribution: true }}
           >
-            <Background gap={16} color="#e2e8f0" />
+            <Background gap={16} color="var(--mdu-topology-grid)" />
             <Controls showInteractive={false} />
           </ReactFlow>
         </div>

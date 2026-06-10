@@ -20,19 +20,19 @@ type RecentAlertsPanelProps = {
 const severityConfig = {
   info: {
     icon: InfoIcon,
-    badgeClassName: "bg-blue-50 text-blue-700 ring-blue-200/70",
+    badgeClassName: "bg-[var(--mdu-info-soft)] text-[var(--mdu-info)] ring-[color:var(--mdu-info)]/20",
   },
   success: {
     icon: InfoIcon,
-    badgeClassName: "bg-emerald-50 text-emerald-700 ring-emerald-200/70",
+    badgeClassName: "bg-[var(--mdu-success-soft)] text-[var(--mdu-success)] ring-[color:var(--mdu-success)]/20",
   },
   warning: {
     icon: AlertTriangleIcon,
-    badgeClassName: "bg-amber-50 text-amber-700 ring-amber-200/70",
+    badgeClassName: "bg-[var(--mdu-warning-soft)] text-[var(--mdu-warning)] ring-[color:var(--mdu-warning)]/20",
   },
   critical: {
     icon: SirenIcon,
-    badgeClassName: "bg-rose-50 text-rose-700 ring-rose-200/70",
+    badgeClassName: "bg-[var(--mdu-danger-soft)] text-[var(--mdu-danger)] ring-[color:var(--mdu-danger)]/20",
   },
 } as const;
 
@@ -51,16 +51,16 @@ function formatTimestamp(value: string): string {
 
 export function RecentAlertsPanel({ alerts }: RecentAlertsPanelProps) {
   return (
-    <Card className="h-[358px] rounded-[14px] border border-[#e6edf7] bg-white py-0 shadow-[0_12px_26px_rgba(15,23,42,0.04)]">
+    <Card className="h-[358px] rounded-[14px] border border-[var(--mdu-border)] bg-[var(--mdu-surface)] py-0 shadow-[var(--mdu-shadow-card)]">
       <CardHeader className="gap-1.5 py-3.5">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <CardTitle className="text-[1.05rem] text-[#0f1f46]">Recent Alerts</CardTitle>
-            <CardDescription className="text-[13px] leading-5 text-slate-500">
+            <CardTitle className="text-[1.05rem] text-[var(--mdu-text)]">Recent Alerts</CardTitle>
+            <CardDescription className="text-[13px] leading-5 text-[var(--mdu-text-muted)]">
               Latest operational events within the selected scope.
             </CardDescription>
           </div>
-          <Button asChild variant="ghost" className="text-[#2563eb] hover:bg-[#f2f7ff]">
+          <Button asChild variant="ghost" className="text-[var(--mdu-primary)] hover:bg-[var(--mdu-primary-soft)]">
             <Link href="/devices">
               View all
               <ChevronRightIcon className="size-4" />
@@ -84,7 +84,7 @@ export function RecentAlertsPanel({ alerts }: RecentAlertsPanelProps) {
               return (
                 <div
                   key={alert.id}
-                  className="rounded-[12px] border border-[#edf2f8] bg-white px-3 py-2 shadow-none"
+                  className="rounded-[12px] border border-[var(--mdu-border-soft)] bg-[var(--mdu-surface)] px-3 py-2 shadow-none"
                 >
                   <div className="flex items-start gap-3">
                     <span
@@ -93,13 +93,13 @@ export function RecentAlertsPanel({ alerts }: RecentAlertsPanelProps) {
                       <Icon className="size-3.5" />
                     </span>
                     <div className="min-w-0 flex-1 space-y-1">
-                      <p className="text-[0.95rem] font-semibold leading-5 text-slate-900">{alert.title}</p>
-                      <p className="truncate text-[0.95rem] text-slate-500">
+                      <p className="text-[0.95rem] font-semibold leading-5 text-[var(--mdu-text-strong)]">{alert.title}</p>
+                      <p className="truncate text-[0.95rem] text-[var(--mdu-text-muted)]">
                         {alert.resourceLabel ?? scopeSummary}
                       </p>
                     </div>
                     <div className="flex shrink-0 flex-col items-end gap-1.5">
-                      <span className="text-[0.95rem] text-slate-500">
+                      <span className="text-[0.95rem] text-[var(--mdu-text-muted)]">
                         {formatTimestamp(alert.occurredAt)}
                       </span>
                       <Badge
