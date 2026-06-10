@@ -45,7 +45,7 @@ export async function getConfigurationById(
       });
     }
 
-    assertCanAccess(user, "view", "configurations", config.scopePath[0]?.id ?? null);
+    assertCanAccess(user, "view", "configurations", config.scopePath[config.scopePath.length - 1]?.id ?? null);
 
     if (
       filterByScope([config], (item) => item.scopePath, null, user).length === 0

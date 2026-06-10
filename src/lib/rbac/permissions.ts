@@ -103,7 +103,7 @@ export const rolePermissionMatrix: Record<UserRole, RolePermissionConfig> = {
     ],
     modules: {
       dashboard: createModuleAccess(true, ["view"]),
-      customers: createModuleAccess(true, ["view", "create", "edit"]),
+      customers: createModuleAccess(true, ["view", "edit"]),
       hierarchy: createModuleAccess(true, ["view", "create", "edit", "move"]),
       devices: createModuleAccess(true, ["view", "create", "edit", "assign", "move", "execute", "diagnose"]),
       configurations: createModuleAccess(true, ["view", "create", "edit", "assign"]),

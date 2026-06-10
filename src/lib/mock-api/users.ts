@@ -84,7 +84,7 @@ export async function getUserById(
       currentUser,
       "view",
       "users",
-      user.scopeAssignments[0]?.scopePath[0]?.id ?? null,
+      user.scopeAssignments[0]?.scopePath[user.scopeAssignments[0]?.scopePath.length - 1]?.id ?? null,
     );
 
     if (

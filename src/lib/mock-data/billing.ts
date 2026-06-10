@@ -82,24 +82,7 @@ export const mockSubscriptions: Subscription[] = [
       billableConnectionCount: null,
     },
   }),
-  createSubscription({
-    id: "sub-subop-east",
-    customerId: hierarchyExampleIds.SUB_OPERATOR_EAST_ID,
-    planId: "plan-fixed-250",
-    planName: "Enterprise Fixed 250",
-    planType: "fixed_device",
-    status: "active",
-    scopePath: getScopePath(hierarchyExampleIds.SUB_OPERATOR_EAST_ID),
-    startsAt: "2026-05-15T00:00:00Z",
-    renewsAt: "2026-07-15T00:00:00Z",
-    expiresAt: null,
-    usage: {
-      deviceCountUsed: 4,
-      deviceLimit: 250,
-      connectedDeviceCount: null,
-      billableConnectionCount: null,
-    },
-  }),
+
 ];
 
 export const mockBillingConflicts: BillingConflict[] = [

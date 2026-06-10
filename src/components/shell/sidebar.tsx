@@ -67,7 +67,7 @@ export function Sidebar({ onNavigate }: SidebarProps) {
   const activeModule = getModuleFromPath(pathname);
 
   return (
-    <div className="flex h-full flex-col bg-[var(--mdu-surface)] text-[var(--mdu-text)]">
+    <div className="flex h-full flex-col bg-mdu-surface text-mdu-text">
       <div
         className={[
           "flex-1 overflow-hidden",
@@ -90,8 +90,8 @@ export function Sidebar({ onNavigate }: SidebarProps) {
                     : "!h-[30px] w-full justify-start rounded-2xl px-3.5",
                   "text-sm font-medium transition-all",
                   isActive
-                    ? "border border-[var(--mdu-border-strong)] bg-[linear-gradient(180deg,var(--mdu-primary-soft-2)_0%,var(--mdu-primary-soft-3)_100%)] text-[var(--mdu-primary)] shadow-[var(--mdu-shadow-soft)] hover:bg-[linear-gradient(180deg,var(--mdu-primary-soft-2)_0%,var(--mdu-primary-soft-3)_100%)] hover:text-[var(--mdu-primary)]"
-                    : "text-[var(--mdu-text-muted)] hover:bg-[var(--mdu-surface-soft)] hover:text-[var(--mdu-text-strong)]",
+                    ? "border border-mdu-border-strong bg-[linear-gradient(180deg,var(--mdu-primary-soft-2)_0%,var(--mdu-primary-soft-3)_100%)] text-mdu-primary shadow-[var(--mdu-shadow-soft)] hover:bg-[linear-gradient(180deg,var(--mdu-primary-soft-2)_0%,var(--mdu-primary-soft-3)_100%)] hover:text-mdu-primary"
+                    : "text-mdu-text-muted hover:bg-mdu-surface-soft hover:text-mdu-text-strong",
                 ].join(" ")}
               >
                 <Link
@@ -124,7 +124,7 @@ export function Sidebar({ onNavigate }: SidebarProps) {
       </div>
 
       <div className={sidebarCollapsed ? "mt-auto px-2.5 pb-5" : "mt-auto px-4 pb-5"}>
-        <Separator className="mb-4 bg-[var(--mdu-border-soft)]" />
+        <Separator className="mb-4 bg-mdu-border-soft" />
         <div className="space-y-1.5">
           <Button
             variant="ghost"
@@ -134,7 +134,7 @@ export function Sidebar({ onNavigate }: SidebarProps) {
               sidebarCollapsed
                 ? "!h-[30px] w-full justify-center rounded-2xl px-0"
                 : "!h-[30px] w-full justify-start rounded-2xl px-3",
-              "text-[var(--mdu-text-muted)] hover:bg-[var(--mdu-surface-soft)] hover:text-[var(--mdu-text-strong)]",
+              "text-mdu-text-muted hover:bg-mdu-surface-soft hover:text-mdu-text-strong",
             ].join(" ")}
           >
             <ShieldCheckIcon className={sidebarCollapsed ? "size-4" : "mr-3 size-4"} />
@@ -148,7 +148,7 @@ export function Sidebar({ onNavigate }: SidebarProps) {
               sidebarCollapsed
                 ? "!h-[30px] w-full justify-center rounded-2xl px-0"
                 : "!h-[30px] w-full justify-start rounded-2xl px-3",
-              "text-[var(--mdu-text-muted)] hover:bg-[var(--mdu-surface-soft)] hover:text-[var(--mdu-text-strong)]",
+              "text-mdu-text-muted hover:bg-mdu-surface-soft hover:text-mdu-text-strong",
             ].join(" ")}
           >
             <LayoutDashboardIcon className={sidebarCollapsed ? "size-4" : "mr-3 size-4"} />
@@ -156,7 +156,7 @@ export function Sidebar({ onNavigate }: SidebarProps) {
           </Button>
         </div>
         {!sidebarCollapsed ? (
-          <div className="mt-6 border-t border-[var(--mdu-border-soft)] pt-4 text-xs leading-5 text-[var(--mdu-text-soft)]">
+          <div className="mt-6 border-t border-mdu-border-soft pt-4 text-xs leading-5 text-mdu-text-soft">
             <p>© 2026 MDU Platform</p>
             <p>All rights reserved.</p>
           </div>

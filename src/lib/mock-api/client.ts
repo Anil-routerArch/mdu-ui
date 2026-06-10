@@ -153,13 +153,13 @@ export function isPathAccessibleToUser(path: ScopePathItem[], user: User): boole
   }
 
   return user.scopeAssignments.some((assignment) => {
-    const assignedRoot = assignment.scopePath[0];
+    const assignedScopeRoot = assignment.scopePath[assignment.scopePath.length - 1];
 
-    if (!assignedRoot) {
+    if (!assignedScopeRoot) {
       return false;
     }
 
-    return isNodeWithinSubtree(targetId, assignedRoot.id);
+    return isNodeWithinSubtree(targetId, assignedScopeRoot.id);
   });
 }
 
