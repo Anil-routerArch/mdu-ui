@@ -14,18 +14,8 @@ import { UserProfileMenu } from "@/components/shell/user-profile-menu";
 
 export function TopAppHeader() {
   const [query, setQuery] = useState("");
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    if (typeof window === "undefined") {
-      return false;
-    }
-
-    const storedTheme = window.localStorage.getItem("mdu-ui-theme");
-
-    return (
-      storedTheme === "dark" ||
-      (!storedTheme && window.matchMedia("(prefers-color-scheme: dark)").matches)
-    );
-  });
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isThemeReady, setIsThemeReady] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const toggleSidebar = useUiStore((state) => state.toggleSidebar);
@@ -42,9 +32,27 @@ export function TopAppHeader() {
   }, [globalSearchOpen]);
 
   useEffect(() => {
+    const frameId = window.requestAnimationFrame(() => {
+      const storedTheme = window.localStorage.getItem("mdu-ui-theme");
+      const nextIsDarkMode =
+        storedTheme === "dark" ||
+        (!storedTheme && window.matchMedia("(prefers-color-scheme: dark)").matches);
+
+      setIsDarkMode(nextIsDarkMode);
+      setIsThemeReady(true);
+    });
+
+    return () => window.cancelAnimationFrame(frameId);
+  }, []);
+
+  useEffect(() => {
+    if (!isThemeReady) {
+      return;
+    }
+
     document.documentElement.classList.toggle("dark", isDarkMode);
     window.localStorage.setItem("mdu-ui-theme", isDarkMode ? "dark" : "light");
-  }, [isDarkMode]);
+  }, [isDarkMode, isThemeReady]);
 
   useEffect(() => {
     const handlePointerDown = (event: MouseEvent) => {
@@ -183,10 +191,16 @@ export function TopAppHeader() {
             variant="ghost"
             className="size-8 rounded-xl border border-white/10 bg-white/5 text-white hover:bg-white/10 hover:text-white"
             onClick={toggleTheme}
-            aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
-            title={isDarkMode ? "Light mode" : "Dark mode"}
+            aria-label={
+              isThemeReady && isDarkMode ? "Switch to light mode" : "Switch to dark mode"
+            }
+            title={isThemeReady && isDarkMode ? "Light mode" : "Dark mode"}
           >
-            {isDarkMode ? <SunIcon className="size-3.5" /> : <MoonIcon className="size-3.5" />}
+            {isThemeReady && isDarkMode ? (
+              <SunIcon className="size-3.5" />
+            ) : (
+              <MoonIcon className="size-3.5" />
+            )}
           </Button>
           <Separator orientation="vertical" className="hidden h-6 bg-white/10 sm:block" />
           <UserProfileMenu />
