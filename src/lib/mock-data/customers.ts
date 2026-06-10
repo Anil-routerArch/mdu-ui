@@ -32,30 +32,7 @@ export const mockCustomers: Customer[] = [
     createdAt: now,
     updatedAt: now,
   }),
-  createCustomer({
-    id: hierarchyExampleIds.SUB_OPERATOR_EAST_ID,
-    name: "Sub-Operator East",
-    type: "sub_operator",
-    status: "active",
-    parentId: hierarchyExampleIds.CUSTOMER_B_ID,
-    path: getScopePath(hierarchyExampleIds.SUB_OPERATOR_EAST_ID),
-    firstAdminUserId: "user-customer-admin",
-    summary: {
-      siteCount: 1,
-      venueCount: 3,
-      deviceCount: 4,
-      userCount: 1,
-    },
-    billing: {
-      currentPlanName: "Enterprise Fixed 250",
-      currentPlanType: "fixed_device",
-      subscriptionStatus: "active",
-      deviceCountUsed: 4,
-      deviceLimit: 250,
-    },
-    createdAt: now,
-    updatedAt: now,
-  }),
+
   createCustomer({
     id: hierarchyExampleIds.CUSTOMER_DIRECT_ID,
     name: "Customer Direct C",

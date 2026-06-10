@@ -8,7 +8,6 @@ import type {
 
 const ROOT_OPERATOR_ID = "op-operator-a";
 const CUSTOMER_B_ID = "cust-customer-b";
-const SUB_OPERATOR_EAST_ID = "subop-east";
 const SUNRISE_TOWERS_ID = "site-sunrise-towers";
 const SUNRISE_BUILDING_A_ID = "building-sunrise-a";
 const TOWER_1_ID = "tower-1";
@@ -51,17 +50,8 @@ const customerBPath = createPath([
   },
 ]);
 
-const subOperatorEastPath = createPath([
-  ...customerBPath,
-  {
-    id: SUB_OPERATOR_EAST_ID,
-    name: "Sub-Operator East",
-    type: "sub_operator",
-  },
-]);
-
 const sunriseTowersPath = createPath([
-  ...subOperatorEastPath,
+  ...customerBPath,
   {
     id: SUNRISE_TOWERS_ID,
     name: "Sunrise Towers",
@@ -180,27 +170,27 @@ export const mockHierarchyTree: HierarchyTree = {
           isSelectable: true,
           children: [
             createNode({
-              id: SUB_OPERATOR_EAST_ID,
-              type: "sub_operator",
-              name: "Sub-Operator East",
+              id: SUNRISE_TOWERS_ID,
+              type: "site",
+              name: "Sunrise Towers",
               parentId: CUSTOMER_B_ID,
-              path: subOperatorEastPath,
+              path: sunriseTowersPath,
               metadata: {
-                entityId: "entity-subop-east",
+                siteId: SUNRISE_TOWERS_ID,
                 childCount: 1,
-                deviceCount: 128,
+                deviceCount: 96,
               },
               hasChildren: true,
               isSelectable: true,
               children: [
                 createNode({
-                  id: SUNRISE_TOWERS_ID,
-                  type: "site",
-                  name: "Sunrise Towers",
-                  parentId: SUB_OPERATOR_EAST_ID,
-                  path: sunriseTowersPath,
+                  id: SUNRISE_BUILDING_A_ID,
+                  type: "building",
+                  name: "Building A",
+                  parentId: SUNRISE_TOWERS_ID,
+                  path: sunriseBuildingAPath,
                   metadata: {
-                    siteId: SUNRISE_TOWERS_ID,
+                    buildingId: SUNRISE_BUILDING_A_ID,
                     childCount: 1,
                     deviceCount: 96,
                   },
@@ -208,97 +198,81 @@ export const mockHierarchyTree: HierarchyTree = {
                   isSelectable: true,
                   children: [
                     createNode({
-                      id: SUNRISE_BUILDING_A_ID,
-                      type: "building",
-                      name: "Building A",
-                      parentId: SUNRISE_TOWERS_ID,
-                      path: sunriseBuildingAPath,
+                      id: TOWER_1_ID,
+                      type: "tower",
+                      name: "Tower 1",
+                      parentId: SUNRISE_BUILDING_A_ID,
+                      path: tower1Path,
                       metadata: {
-                        buildingId: SUNRISE_BUILDING_A_ID,
-                        childCount: 1,
-                        deviceCount: 96,
+                        towerId: TOWER_1_ID,
+                        childCount: 2,
+                        deviceCount: 64,
+                        hasTopology: true,
                       },
                       hasChildren: true,
                       isSelectable: true,
                       children: [
                         createNode({
-                          id: TOWER_1_ID,
-                          type: "tower",
-                          name: "Tower 1",
-                          parentId: SUNRISE_BUILDING_A_ID,
-                          path: tower1Path,
+                          id: FLOOR_12_ID,
+                          type: "floor",
+                          name: "Floor 12",
+                          parentId: TOWER_1_ID,
+                          path: floor12Path,
                           metadata: {
-                            towerId: TOWER_1_ID,
+                            floorId: FLOOR_12_ID,
                             childCount: 2,
-                            deviceCount: 64,
+                            deviceCount: 32,
                             hasTopology: true,
+                            hasMap: true,
                           },
                           hasChildren: true,
                           isSelectable: true,
                           children: [
                             createNode({
-                              id: FLOOR_12_ID,
-                              type: "floor",
-                              name: "Floor 12",
-                              parentId: TOWER_1_ID,
-                              path: floor12Path,
+                              id: VENUE_LOUNGE_ID,
+                              type: "venue",
+                              name: "Venue Lounge",
+                              parentId: FLOOR_12_ID,
+                              path: venueLoungePath,
                               metadata: {
-                                floorId: FLOOR_12_ID,
-                                childCount: 2,
-                                deviceCount: 32,
+                                venueId: VENUE_LOUNGE_ID,
+                                deviceCount: 12,
                                 hasTopology: true,
                                 hasMap: true,
                               },
-                              hasChildren: true,
+                              hasChildren: false,
                               isSelectable: true,
-                              children: [
-                                createNode({
-                                  id: VENUE_LOUNGE_ID,
-                                  type: "venue",
-                                  name: "Venue Lounge",
-                                  parentId: FLOOR_12_ID,
-                                  path: venueLoungePath,
-                                  metadata: {
-                                    venueId: VENUE_LOUNGE_ID,
-                                    deviceCount: 12,
-                                    hasTopology: true,
-                                    hasMap: true,
-                                  },
-                                  hasChildren: false,
-                                  isSelectable: true,
-                                }),
-                                createNode({
-                                  id: VENUE_OFFICE_ID,
-                                  type: "venue",
-                                  name: "Venue Office",
-                                  parentId: FLOOR_12_ID,
-                                  path: venueOfficePath,
-                                  metadata: {
-                                    venueId: VENUE_OFFICE_ID,
-                                    deviceCount: 20,
-                                    hasTopology: true,
-                                    hasMap: true,
-                                  },
-                                  hasChildren: false,
-                                  isSelectable: true,
-                                }),
-                              ],
                             }),
                             createNode({
-                              id: VENUE_ROOFTOP_ID,
+                              id: VENUE_OFFICE_ID,
                               type: "venue",
-                              name: "Venue Rooftop",
-                              parentId: TOWER_1_ID,
-                              path: venueRooftopPath,
+                              name: "Venue Office",
+                              parentId: FLOOR_12_ID,
+                              path: venueOfficePath,
                               metadata: {
-                                venueId: VENUE_ROOFTOP_ID,
-                                deviceCount: 8,
+                                venueId: VENUE_OFFICE_ID,
+                                deviceCount: 20,
                                 hasTopology: true,
+                                hasMap: true,
                               },
                               hasChildren: false,
                               isSelectable: true,
                             }),
                           ],
+                        }),
+                        createNode({
+                          id: VENUE_ROOFTOP_ID,
+                          type: "venue",
+                          name: "Venue Rooftop",
+                          parentId: TOWER_1_ID,
+                          path: venueRooftopPath,
+                          metadata: {
+                            venueId: VENUE_ROOFTOP_ID,
+                            deviceCount: 8,
+                            hasTopology: true,
+                          },
+                          hasChildren: false,
+                          isSelectable: true,
                         }),
                       ],
                     }),
@@ -421,7 +395,6 @@ export function toSelectedScope(nodeId: ID): SelectedScope | null {
 export const hierarchyExampleIds = {
   ROOT_OPERATOR_ID,
   CUSTOMER_B_ID,
-  SUB_OPERATOR_EAST_ID,
   SUNRISE_TOWERS_ID,
   TOWER_1_ID,
   FLOOR_12_ID,

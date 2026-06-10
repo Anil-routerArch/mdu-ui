@@ -8,13 +8,28 @@ import {
   getDescendants,
   mockHierarchyNodes,
   mockHierarchyTree,
+  isNodeWithinSubtree,
 } from "@/lib/mock-data/hierarchy";
 import type { HierarchyNode, HierarchyTree, ScopePathItem } from "@/types/hierarchy";
 import type { User } from "@/types/user";
 
 function filterTreeNodesByUser(nodes: HierarchyNode[], user: User): HierarchyNode[] {
   return nodes
-    .filter((node) => filterByScope([node], (item) => item.path, null, user).length > 0)
+    .filter((node) => {
+      return user.scopeAssignments.some((assignment) => {
+        const assignedScopeRoot = assignment.scopePath[assignment.scopePath.length - 1];
+        if (!assignedScopeRoot) {
+          return false;
+        }
+
+        // Keep the node if it is at or below the user's assigned scope root,
+        // OR if the assigned scope root is at or below the node (ancestor path).
+        return (
+          isNodeWithinSubtree(node.id, assignedScopeRoot.id) ||
+          isNodeWithinSubtree(assignedScopeRoot.id, node.id)
+        );
+      });
+    })
     .map((node) => ({
       ...node,
       children: node.children ? filterTreeNodesByUser(node.children, user) : undefined,

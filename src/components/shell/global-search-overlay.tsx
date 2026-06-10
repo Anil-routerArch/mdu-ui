@@ -28,7 +28,7 @@ function useGlobalSearchResults(query: string): HierarchyNode[] {
 
     return mockHierarchyNodes.filter((node) =>
       currentUser.scopeAssignments.some((assignment) => {
-        const rootId = assignment.scopePath[0]?.id;
+        const rootId = assignment.scopePath[assignment.scopePath.length - 1]?.id;
         return rootId ? isNodeWithinSubtree(node.id, rootId) : false;
       }),
     );

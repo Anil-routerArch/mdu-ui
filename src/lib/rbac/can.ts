@@ -32,14 +32,13 @@ function hasScopeAccess(user: User, selectedScope: SelectedScope | null): boolea
   }
 
   return user.scopeAssignments.some((assignment) => {
-    const assignmentRoot = assignment.scopePath[0];
     const assignedScopeRoot = assignment.scopePath[assignment.scopePath.length - 1];
 
-    if (!assignmentRoot || !assignedScopeRoot) {
+    if (!assignedScopeRoot) {
       return false;
     }
 
-    return isNodeWithinSubtree(selectedScope.nodeId, assignmentRoot.id);
+    return isNodeWithinSubtree(selectedScope.nodeId, assignedScopeRoot.id);
   });
 }
 
@@ -58,13 +57,13 @@ function hasResourcePathAccess(
   }
 
   return user.scopeAssignments.some((assignment) => {
-    const assignmentRoot = assignment.scopePath[0];
+    const assignedScopeRoot = assignment.scopePath[assignment.scopePath.length - 1];
 
-    if (!assignmentRoot) {
+    if (!assignedScopeRoot) {
       return false;
     }
 
-    return isNodeWithinSubtree(targetNodeId, assignmentRoot.id);
+    return isNodeWithinSubtree(targetNodeId, assignedScopeRoot.id);
   });
 }
 
@@ -107,6 +106,19 @@ export function can(
       allowed: false,
       mode: "hidden",
       reason: "Selected scope is outside the assigned subtree.",
+    };
+  }
+
+  if (
+    action === "create" &&
+    normalizedResource.module === "customers" &&
+    scope &&
+    !["operator", "customer", "sub_operator"].includes(scope.nodeType)
+  ) {
+    return {
+      allowed: false,
+      mode: "hidden",
+      reason: "Customers can only be created under operator, customer, or sub-operator scopes.",
     };
   }
 
