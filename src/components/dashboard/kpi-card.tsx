@@ -28,10 +28,10 @@ type KpiCardProps = {
 };
 
 const severityStyles: Record<StatusSeverity, string> = {
-  info: "bg-blue-50 text-blue-600",
-  success: "bg-emerald-50 text-emerald-600",
-  warning: "bg-amber-50 text-amber-600",
-  critical: "bg-rose-50 text-rose-600",
+  info: "bg-[var(--mdu-info-soft)] text-[var(--mdu-info)]",
+  success: "bg-[var(--mdu-success-soft)] text-[var(--mdu-success)]",
+  warning: "bg-[var(--mdu-warning-soft)] text-[var(--mdu-warning)]",
+  critical: "bg-[var(--mdu-danger-soft)] text-[var(--mdu-danger)]",
 };
 
 const kpiIconConfig: Record<
@@ -40,33 +40,33 @@ const kpiIconConfig: Record<
 > = {
   sites: {
     icon: Building2Icon,
-    iconClassName: "text-blue-600",
-    containerClassName: "bg-blue-50",
+    iconClassName: "text-[var(--mdu-info)]",
+    containerClassName: "bg-[var(--mdu-info-soft)]",
   },
   buildings: {
     icon: BuildingIcon,
-    iconClassName: "text-violet-600",
-    containerClassName: "bg-violet-50",
+    iconClassName: "text-violet-500 dark:text-violet-300",
+    containerClassName: "bg-violet-50 dark:bg-violet-500/12",
   },
   floors: {
     icon: Layers3Icon,
-    iconClassName: "text-emerald-600",
-    containerClassName: "bg-emerald-50",
+    iconClassName: "text-[var(--mdu-success)]",
+    containerClassName: "bg-[var(--mdu-success-soft)]",
   },
   venues: {
     icon: MapPinnedIcon,
-    iconClassName: "text-amber-500",
-    containerClassName: "bg-amber-50",
+    iconClassName: "text-[var(--mdu-warning)]",
+    containerClassName: "bg-[var(--mdu-warning-soft)]",
   },
   devices: {
     icon: RouterIcon,
-    iconClassName: "text-blue-600",
-    containerClassName: "bg-blue-50",
+    iconClassName: "text-[var(--mdu-info)]",
+    containerClassName: "bg-[var(--mdu-info-soft)]",
   },
   alerts: {
     icon: AlertTriangleIcon,
-    iconClassName: "text-rose-500",
-    containerClassName: "bg-rose-50",
+    iconClassName: "text-[var(--mdu-danger)]",
+    containerClassName: "bg-[var(--mdu-danger-soft)]",
   },
 };
 
@@ -99,13 +99,13 @@ export function KpiCard({
   const Icon = config.icon;
 
   return (
-    <Card className="min-h-[8px] rounded-[12px] border border-[#e7edf7] bg-white p-0 py-0 shadow-[0_6px_14px_rgba(15,23,42,0.025)]">
+    <Card className="min-h-[8px] rounded-[12px] border border-[var(--mdu-border)] bg-[var(--mdu-surface)] p-0 py-0 shadow-[var(--mdu-shadow-soft)]">
       <CardContent className="p-0">
         <div className="flex h-full flex-col justify-between gap-3 ">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0 ">
-              <p className="text-[12px] font-semibold text-slate-800">{label}</p>
-              <p className="mt-2 text-[2rem] font-semibold leading-none tracking-tight text-[#0f1f46]">
+              <p className="text-[12px] font-semibold text-[var(--mdu-text-strong)]">{label}</p>
+              <p className="mt-2 text-[2rem] font-semibold leading-none tracking-tight text-[var(--mdu-text)]">
                 {value}
               </p>
             </div>
@@ -121,7 +121,7 @@ export function KpiCard({
 
           <div className="space-y-1">
             {trend ? (
-              <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-600">
+              <div className="flex items-center gap-1.5 text-[11px] font-medium text-[var(--mdu-text-muted)]">
                 <span
                   className={cn(
                     "inline-flex size-4.5 items-center justify-center rounded-full",

@@ -45,7 +45,7 @@ function ChartContainer({
         data-slot="chart"
         data-chart={resolvedId}
         className={cn(
-          "[&_.recharts-cartesian-axis-tick_text]:fill-slate-400 [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-[#e7eef8] [&_.recharts-curve.recharts-tooltip-cursor]:stroke-[#d7e3f6] [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-none [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-[#e7eef8] [&_.recharts-radial-bar-background-sector]:fill-[#eff4fb] [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-[#f5f8fd] [&_.recharts-reference-line_[stroke='#ccc']]:stroke-[#e7eef8] flex aspect-video justify-center text-xs",
+          "[&_.recharts-cartesian-axis-tick_text]:fill-[var(--mdu-text-soft)] [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-[var(--mdu-chart-grid)] [&_.recharts-curve.recharts-tooltip-cursor]:stroke-[var(--mdu-chart-cursor)] [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-none [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-[var(--mdu-chart-grid)] [&_.recharts-radial-bar-background-sector]:fill-[var(--mdu-chart-track)] [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-[var(--mdu-surface-soft)] [&_.recharts-reference-line_[stroke='#ccc']]:stroke-[var(--mdu-chart-grid)] flex aspect-video justify-center text-xs",
           className,
         )}
         {...props}
@@ -107,7 +107,7 @@ function ChartTooltipContent({
   return (
     <div
       className={cn(
-        "min-w-[148px] rounded-xl border border-[#e4ecf7] bg-white px-3 py-2 text-xs shadow-[0_16px_36px_rgba(15,23,42,0.12)]",
+        "min-w-[148px] rounded-xl border border-[var(--mdu-chart-tooltip-border)] bg-[var(--mdu-chart-tooltip-bg)] px-3 py-2 text-xs shadow-[var(--mdu-shadow-popover)]",
         className,
       )}
     >
@@ -123,12 +123,12 @@ function ChartTooltipContent({
                 style={{ backgroundColor: item.color ?? `var(--color-${key})` }}
               />
               {!hideLabel ? (
-                <span className="truncate text-slate-500">
+                <span className="truncate text-[var(--mdu-text-muted)]">
                   {itemConfig?.label ?? key}
                 </span>
               ) : null}
             </div>
-            <span className="font-medium text-[#0f1f46]">
+            <span className="font-medium text-[var(--mdu-text)]">
               {Number(item.value ?? 0).toLocaleString()}
             </span>
           </div>

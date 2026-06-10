@@ -47,9 +47,9 @@ export function BillingPlanList({
 
   return (
     <div className="space-y-4">
-      <Card className="border border-slate-200/80 bg-white shadow-sm">
+      <Card className="border border-[var(--mdu-border)] bg-[var(--mdu-surface)] shadow-[var(--mdu-shadow-card)]">
         <CardHeader>
-          <CardTitle className="text-base text-slate-950">Billing Plan List</CardTitle>
+          <CardTitle className="text-base text-[var(--mdu-text)]">Billing Plan List</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
@@ -73,17 +73,17 @@ export function BillingPlanList({
 
                 return (
                   <TableRow key={plan.id}>
-                    <TableCell className="font-medium text-slate-900">{plan.name}</TableCell>
-                    <TableCell className="text-slate-700">
+                    <TableCell className="font-medium text-[var(--mdu-text-strong)]">{plan.name}</TableCell>
+                    <TableCell className="text-[var(--mdu-text-muted)]">
                       {plan.type.replaceAll("_", " ")}
                     </TableCell>
                     <TableCell>
                       <BillingStatusBadge status={plan.status} />
                     </TableCell>
-                    <TableCell className="text-slate-700">{plan.billingCycle}</TableCell>
-                    <TableCell className="text-slate-700">${plan.price}</TableCell>
-                    <TableCell className="text-slate-700">{formatLimits(plan)}</TableCell>
-                    <TableCell className="text-slate-700">
+                    <TableCell className="text-[var(--mdu-text-muted)]">{plan.billingCycle}</TableCell>
+                    <TableCell className="text-[var(--mdu-text-muted)]">${plan.price}</TableCell>
+                    <TableCell className="text-[var(--mdu-text-muted)]">{formatLimits(plan)}</TableCell>
+                    <TableCell className="text-[var(--mdu-text-muted)]">
                       {relatedSubscriptions.length}
                     </TableCell>
                     <TableCell>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { BellIcon, CircleHelpIcon, MenuIcon, SearchIcon } from "lucide-react";
+import { BellIcon, CircleHelpIcon, MenuIcon, MoonIcon, SearchIcon, SunIcon } from "lucide-react";
 
 import { Command } from "@/components/ui/command";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,18 @@ import { UserProfileMenu } from "@/components/shell/user-profile-menu";
 
 export function TopAppHeader() {
   const [query, setQuery] = useState("");
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    if (typeof window === "undefined") {
+      return false;
+    }
+
+    const storedTheme = window.localStorage.getItem("mdu-ui-theme");
+
+    return (
+      storedTheme === "dark" ||
+      (!storedTheme && window.matchMedia("(prefers-color-scheme: dark)").matches)
+    );
+  });
   const containerRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const toggleSidebar = useUiStore((state) => state.toggleSidebar);
@@ -28,6 +40,11 @@ export function TopAppHeader() {
       inputRef.current?.focus();
     }
   }, [globalSearchOpen]);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", isDarkMode);
+    window.localStorage.setItem("mdu-ui-theme", isDarkMode ? "dark" : "light");
+  }, [isDarkMode]);
 
   useEffect(() => {
     const handlePointerDown = (event: MouseEvent) => {
@@ -58,6 +75,10 @@ export function TopAppHeader() {
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [closeGlobalSearch, openGlobalSearch]);
+
+  const toggleTheme = () => {
+    setIsDarkMode((currentValue) => !currentValue);
+  };
 
   return (
     <header className="border-b border-white/10 bg-[linear-gradient(90deg,#071b4d_0%,#0a235e_45%,#0a1d48_100%)] text-white shadow-[0_12px_32px_rgba(7,27,77,0.18)]">
@@ -99,7 +120,7 @@ export function TopAppHeader() {
 
         <div className="hidden min-w-0 flex-1 justify-center px-4 md:flex">
           <div ref={containerRef} className="relative w-full max-w-[340px]">
-            <div className="flex h-9 w-full items-center rounded-xl border border-white/12 bg-white/10 px-3 text-blue-50/85 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-colors focus-within:bg-white/14">
+            <div className="flex h-9 w-full items-center rounded-xl border border-white/10 bg-white/5 px-3 text-blue-50/85 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-colors focus-within:bg-white/10">
               <input
                 ref={inputRef}
                 value={query}
@@ -117,7 +138,7 @@ export function TopAppHeader() {
             </div>
 
             {globalSearchOpen ? (
-              <div className="absolute left-0 top-[calc(100%+12px)] z-50 w-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_24px_50px_rgba(15,23,42,0.18)]">
+              <div className="absolute left-0 top-[calc(100%+12px)] z-50 w-full overflow-hidden rounded-2xl border border-[var(--mdu-border)] bg-[var(--mdu-surface)] shadow-[var(--mdu-shadow-popover)]">
                 <Command>
                   <GlobalSearchResults
                     query={query}
@@ -156,6 +177,16 @@ export function TopAppHeader() {
             className="size-8 rounded-xl border border-white/10 bg-white/5 text-white hover:bg-white/10 hover:text-white"
           >
             <CircleHelpIcon className="size-3.5" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            className="size-8 rounded-xl border border-white/10 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+            onClick={toggleTheme}
+            aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+            title={isDarkMode ? "Light mode" : "Dark mode"}
+          >
+            {isDarkMode ? <SunIcon className="size-3.5" /> : <MoonIcon className="size-3.5" />}
           </Button>
           <Separator orientation="vertical" className="hidden h-6 bg-white/10 sm:block" />
           <UserProfileMenu />
