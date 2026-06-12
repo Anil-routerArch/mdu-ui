@@ -1,5 +1,6 @@
 "use client";
 
+import { ReactNode } from "react";
 import { AlertTriangleIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,7 @@ import {
 type ConfirmationDialogProps = {
   open: boolean;
   title: string;
-  description?: string;
+  description?: ReactNode;
   confirmLabel?: string;
   cancelLabel?: string;
   variant?: "default" | "danger";

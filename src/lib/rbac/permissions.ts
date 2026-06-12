@@ -47,7 +47,7 @@ const managementActions: PermissionAction[] = [
 ];
 
 export const rolePermissionMatrix: Record<UserRole, RolePermissionConfig> = {
-  root_operator: {
+  root: {
     allowedScopeRootTypes: [
       "operator",
       "customer",
@@ -69,7 +69,29 @@ export const rolePermissionMatrix: Record<UserRole, RolePermissionConfig> = {
       administration: createModuleAccess(true, managementActions),
     },
   },
-  operator_admin: {
+  system: {
+    allowedScopeRootTypes: [
+      "operator",
+      "customer",
+      "sub_operator",
+      "site",
+      "building",
+      "tower",
+      "floor",
+      "venue",
+    ],
+    modules: {
+      dashboard: createModuleAccess(true, managementActions),
+      customers: createModuleAccess(true, managementActions),
+      hierarchy: createModuleAccess(true, managementActions),
+      devices: createModuleAccess(true, managementActions),
+      configurations: createModuleAccess(true, managementActions),
+      billing: createModuleAccess(true, managementActions),
+      users: createModuleAccess(true, managementActions),
+      administration: createModuleAccess(true, managementActions),
+    },
+  },
+  admin: {
     allowedScopeRootTypes: [
       "operator",
       "customer",
@@ -91,28 +113,7 @@ export const rolePermissionMatrix: Record<UserRole, RolePermissionConfig> = {
       administration: createModuleAccess(true, ["view"]),
     },
   },
-  customer_admin: {
-    allowedScopeRootTypes: [
-      "customer",
-      "sub_operator",
-      "site",
-      "building",
-      "tower",
-      "floor",
-      "venue",
-    ],
-    modules: {
-      dashboard: createModuleAccess(true, ["view"]),
-      customers: createModuleAccess(true, ["view", "edit"]),
-      hierarchy: createModuleAccess(true, ["view", "create", "edit", "move"]),
-      devices: createModuleAccess(true, ["view", "create", "edit", "assign", "move", "execute", "diagnose"]),
-      configurations: createModuleAccess(true, ["view", "create", "edit", "assign"]),
-      billing: createModuleAccess(true, ["view", "approve"]),
-      users: createModuleAccess(true, ["view", "create", "edit", "assign"]),
-      administration: createModuleAccess(false, []),
-    },
-  },
-  noc_support: {
+  noc: {
     allowedScopeRootTypes: ["site", "building", "tower", "floor", "venue"],
     modules: {
       dashboard: createModuleAccess(true, ["view", "diagnose"]),
@@ -138,7 +139,7 @@ export const rolePermissionMatrix: Record<UserRole, RolePermissionConfig> = {
       administration: createModuleAccess(false, []),
     },
   },
-  billing_admin: {
+  accounting: {
     allowedScopeRootTypes: ["operator", "customer", "sub_operator"],
     modules: {
       dashboard: createModuleAccess(true, ["view"]),
@@ -151,7 +152,7 @@ export const rolePermissionMatrix: Record<UserRole, RolePermissionConfig> = {
       administration: createModuleAccess(false, []),
     },
   },
-  read_only: {
+  csr: {
     allowedScopeRootTypes: [
       "customer",
       "sub_operator",
@@ -175,10 +176,10 @@ export const rolePermissionMatrix: Record<UserRole, RolePermissionConfig> = {
 };
 
 export const roleProfiles: Record<UserRole, RoleProfile> = {
-  root_operator: {
-    id: "profile-root-operator",
-    name: "Root Operator",
-    role: "root_operator",
+  root: {
+    id: "profile-root",
+    name: "Root",
+    role: "root",
     description: "Broad platform access across the full hierarchy.",
     rules: [
       {
@@ -189,38 +190,38 @@ export const roleProfiles: Record<UserRole, RoleProfile> = {
       },
     ],
   },
-  operator_admin: {
-    id: "profile-operator-admin",
-    name: "Operator Admin",
-    role: "operator_admin",
-    description: "Manages permitted operator subtree, customers, devices, and users.",
+  system: {
+    id: "profile-system",
+    name: "System",
+    role: "system",
+    description: "Full system-level operations and configurations.",
     rules: [
       {
-        id: "rule-operator-customers",
+        id: "rule-system-all",
+        module: "administration",
+        actions: managementActions,
+        effect: "allow",
+      },
+    ],
+  },
+  admin: {
+    id: "profile-admin",
+    name: "Admin",
+    role: "admin",
+    description: "Manages permitted operator/customer subtree, devices, and users.",
+    rules: [
+      {
+        id: "rule-admin-customers",
         module: "customers",
         actions: ["view", "create", "edit", "assign"],
         effect: "allow",
       },
     ],
   },
-  customer_admin: {
-    id: "profile-customer-admin",
-    name: "Customer Admin",
-    role: "customer_admin",
-    description: "Manages a customer-owned subtree including users, devices, and billing selection.",
-    rules: [
-      {
-        id: "rule-customer-billing-view",
-        module: "billing",
-        actions: ["view", "approve"],
-        effect: "allow",
-      },
-    ],
-  },
-  noc_support: {
-    id: "profile-noc-support",
-    name: "NOC Support",
-    role: "noc_support",
+  noc: {
+    id: "profile-noc",
+    name: "NOC",
+    role: "noc",
     description: "Operational monitoring and diagnostics without billing or admin privileges.",
     rules: [
       {
@@ -245,28 +246,28 @@ export const roleProfiles: Record<UserRole, RoleProfile> = {
       },
     ],
   },
-  billing_admin: {
-    id: "profile-billing-admin",
-    name: "Billing Admin",
-    role: "billing_admin",
+  accounting: {
+    id: "profile-accounting",
+    name: "Accounting",
+    role: "accounting",
     description: "Billing plans and subscription visibility without full admin access.",
     rules: [
       {
-        id: "rule-billing-plans",
+        id: "rule-accounting-plans",
         module: "billing",
         actions: ["view", "create", "edit", "assign", "approve"],
         effect: "allow",
       },
     ],
   },
-  read_only: {
-    id: "profile-read-only",
-    name: "Read Only",
-    role: "read_only",
+  csr: {
+    id: "profile-csr",
+    name: "CSR",
+    role: "csr",
     description: "View-only access within an assigned subtree.",
     rules: [
       {
-        id: "rule-readonly-dashboard",
+        id: "rule-csr-dashboard",
         module: "dashboard",
         actions: ["view"],
         effect: "allow",

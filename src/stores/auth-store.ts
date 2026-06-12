@@ -20,21 +20,27 @@ type AuthStoreState = {
   switchUser: (userId: string) => void;
 };
 
+function getRoleDisplayName(role: UserRole): string {
+  const r = role.toLowerCase();
+  if (r === "noc") return "NOC";
+  if (r === "csr") return "CSR";
+  return r.charAt(0).toUpperCase() + r.slice(1);
+}
+
 function mapBackendRole(backendRole: string): UserRole {
   const role = backendRole.toLowerCase();
-  if (role === "root") return "root_operator";
-  if (role === "admin") return "operator_admin";
-  if (role === "noc") return "noc_support";
+  if (role === "root") return "root";
+  if (role === "admin") return "admin";
+  if (role === "noc") return "noc";
   if (role === "installer") return "installer";
-  if (role === "accounting") return "billing_admin";
-  return "read_only";
+  if (role === "accounting") return "accounting";
+  if (role === "csr") return "csr";
+  if (role === "system") return "system";
+  return "csr";
 }
 
 function getScopeForRole(role: UserRole) {
-  if (role === "customer_admin") {
-    return getScopePath(hierarchyExampleIds.CUSTOMER_B_ID);
-  }
-  if (role === "noc_support") {
+  if (role === "noc") {
     return getScopePath(hierarchyExampleIds.SUNRISE_TOWERS_ID);
   }
   if (role === "installer") {
@@ -85,7 +91,7 @@ export const useAuthStore = create<AuthStoreState>((set) => ({
             status: "active",
             profile: {
               profileId: `profile-mapped-${mappedRole}`,
-              profileName: mappedRole.split("_").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" "),
+              profileName: getRoleDisplayName(mappedRole),
               role: mappedRole,
               assignmentCount: 1,
             },
@@ -94,7 +100,7 @@ export const useAuthStore = create<AuthStoreState>((set) => ({
                 id: `assignment-mapped-${mappedRole}`,
                 role: mappedRole,
                 profileId: `profile-mapped-${mappedRole}`,
-                profileName: mappedRole.split("_").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" "),
+                profileName: getRoleDisplayName(mappedRole),
                 scopePath: scopePath,
                 assignedAt: new Date().toISOString(),
               }
@@ -170,7 +176,7 @@ export const useAuthStore = create<AuthStoreState>((set) => ({
         status: "active",
         profile: {
           profileId: `profile-mapped-${mappedRole}`,
-          profileName: mappedRole.split("_").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" "),
+          profileName: getRoleDisplayName(mappedRole),
           role: mappedRole,
           assignmentCount: 1,
         },
@@ -179,7 +185,7 @@ export const useAuthStore = create<AuthStoreState>((set) => ({
             id: `assignment-mapped-${mappedRole}`,
             role: mappedRole,
             profileId: `profile-mapped-${mappedRole}`,
-            profileName: mappedRole.split("_").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" "),
+            profileName: getRoleDisplayName(mappedRole),
             scopePath: scopePath,
             assignedAt: new Date().toISOString(),
           }

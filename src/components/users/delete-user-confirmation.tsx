@@ -4,36 +4,37 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { ConfirmationDialog } from "@/components/states";
-import { updateUser } from "@/lib/mock-api/users";
+import { deleteUser } from "@/lib/mock-api/users";
 import type { User } from "@/types/user";
 
-type SuspendUserConfirmationProps = {
+type DeleteUserConfirmationProps = {
   user: User | null;
   open: boolean;
   currentUser: User;
   onOpenChange: (open: boolean) => void;
+  onSuccess?: () => void;
 };
 
-export function SuspendUserConfirmation({
+export function DeleteUserConfirmation({
   user,
   open,
   currentUser,
   onOpenChange,
-}: SuspendUserConfirmationProps) {
+  onSuccess,
+}: DeleteUserConfirmationProps) {
   const queryClient = useQueryClient();
   const [error, setError] = useState<string | null>(null);
 
-  const isSuspended = user?.status === "suspended";
-
   const mutation = useMutation({
-    mutationFn: () => updateUser(user!.id, { suspended: !isSuspended }, currentUser),
+    mutationFn: () => deleteUser(user!.id, currentUser),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
       queryClient.invalidateQueries({ queryKey: ["user", user?.id] });
+      if (onSuccess) onSuccess();
       onOpenChange(false);
     },
     onError: (err: any) => {
-      setError(err.message || `Failed to ${isSuspended ? "reactivate" : "suspend"} user.`);
+      setError(err.message || "Failed to delete user on OWSEC.");
     },
   });
 
@@ -41,33 +42,24 @@ export function SuspendUserConfirmation({
     return null;
   }
 
-  const actionLabel = isSuspended ? "Reactivate" : "Suspend";
-
   return (
     <ConfirmationDialog
       open={open}
-      title={`${actionLabel} ${user.name}`}
+      title={`Delete ${user.name}`}
       description={
         error ? (
           <span className="text-rose-600 block mb-2">{error}</span>
         ) : (
-          `Are you sure you want to ${actionLabel.toLowerCase()} the account for ${user.email}?`
+          `Are you sure you want to permanently delete user ${user.email}? This action cannot be undone.`
         )
       }
-      confirmLabel={`${actionLabel} User`}
-      variant={isSuspended ? "default" : "danger"}
-      impactItems={
-        isSuspended
-          ? [
-              "User will be allowed to log back in immediately",
-              "Access permission will be restored across all assigned scopes",
-            ]
-          : [
-              "Active sessions will be immediately revoked inside OWSEC",
-              "The user will be blocked from logging in or performing actions",
-              "Scope mappings and configuration access will be disabled",
-            ]
-      }
+      confirmLabel="Delete User"
+      variant="danger"
+      impactItems={[
+        "The user account record will be permanently deleted from OWSEC database",
+        "All active authentication tokens, API keys, and configurations will be revoked",
+        "Assigned scope histories and profile credentials will be cleared",
+      ]}
       isSubmitting={mutation.isPending}
       onCancel={() => {
         setError(null);

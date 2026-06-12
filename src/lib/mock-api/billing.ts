@@ -20,7 +20,8 @@ export interface BillingOverview {
 }
 
 function isCustomerScopedRole(user: User): boolean {
-  return user.profile.role === "customer_admin" || user.profile.role === "read_only";
+  const role = user.profile.role;
+  return role === "csr" || (role === "admin" && user.scopeAssignments[0]?.scopePath.at(-1)?.type !== "operator");
 }
 
 function getVisibleSubscriptions(scopeId: string | null, user: User): Subscription[] {
@@ -50,7 +51,8 @@ export async function getBillingPlans(
   return withMockApi(() => {
     assertCanAccess(user, "view", "billing", scopeId);
 
-    if (user.profile.role === "billing_admin" || user.profile.role === "operator_admin" || user.profile.role === "root_operator") {
+    const role = user.profile.role;
+    if (role === "accounting" || role === "admin" || role === "root" || role === "system") {
       return maybeReturnEmpty(
         filterByScope(mockBillingPlans, (plan) => plan.offeredByScope, null, user),
         [],
@@ -68,7 +70,7 @@ export async function getAvailablePlans(
   return withMockApi(() => {
     assertCanAccess(user, "view", "billing", scopeId);
 
-    if (!isCustomerScopedRole(user) && user.profile.role !== "customer_admin") {
+    if (!isCustomerScopedRole(user)) {
       return [];
     }
 
@@ -97,7 +99,8 @@ export async function getSubscriptionVisibility(
   return withMockApi(() => {
     assertCanAccess(user, "view", "billing", scopeId);
 
-    if (user.profile.role === "billing_admin" || user.profile.role === "operator_admin" || user.profile.role === "root_operator") {
+    const role = user.profile.role;
+    if (role === "accounting" || role === "admin" || role === "root" || role === "system") {
       return maybeReturnEmpty(getVisibleSubscriptions(scopeId, user), []);
     }
 

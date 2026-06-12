@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Save, X, ExternalLink } from "lucide-react";
 
@@ -22,14 +22,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { getHierarchyTree } from "@/lib/mock-api/hierarchy";
-import { getAssignableRoles, createUser } from "@/lib/mock-api/users";
+import { getAssignableRoles, updateUser } from "@/lib/mock-api/users";
 import type { HierarchyNode, SelectedScope } from "@/types/hierarchy";
 import type { UserRole } from "@/types/rbac";
 import type { User } from "@/types/user";
 
-type CreateUserFormProps = {
+type EditUserFormProps = {
+  user: User | null;
   open: boolean;
-  selectedScope: SelectedScope;
   currentUser: User;
   onOpenChange: (open: boolean) => void;
 };
@@ -38,27 +38,36 @@ function flattenNodes(nodes: HierarchyNode[]): HierarchyNode[] {
   return nodes.flatMap((node) => [node, ...(node.children ? flattenNodes(node.children) : [])]);
 }
 
-export function CreateUserForm({
+export function EditUserForm({
+  user,
   open,
-  selectedScope,
   currentUser,
   onOpenChange,
-}: CreateUserFormProps) {
+}: EditUserFormProps) {
   const queryClient = useQueryClient();
 
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [role, setRole] = useState<UserRole | "">("");
+  const [description, setDescription] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [role, setRole] = useState<UserRole | "">("");
-  const [changePassword, setChangePassword] = useState(true);
-  const [emailValidation, setEmailValidation] = useState(true);
-  const [description, setDescription] = useState("");
   const [note, setNote] = useState("");
   const [error, setError] = useState<string | null>(null);
 
+  // Sync state with user details when modal opens
+  useEffect(() => {
+    if (user) {
+      setName(user.name);
+      setRole(user.profile.role);
+      setDescription(user.description || "");
+      setPassword("");
+      setShowPassword(false);
+      setNote("");
+    }
+  }, [user, open]);
+
   const rolesQuery = useQuery({
-    queryKey: ["create-user-assignable-roles", currentUser.id],
+    queryKey: ["edit-user-assignable-roles", currentUser.id],
     enabled: open,
     queryFn: () => getAssignableRoles(currentUser),
   });
@@ -66,72 +75,49 @@ export function CreateUserForm({
   const mutation = useMutation({
     mutationFn: (data: {
       name: string;
-      email: string;
       role: UserRole;
-      password?: string;
-      changePassword?: boolean;
-      emailValidation?: boolean;
       description?: string;
-      note?: string;
-    }) => createUser(data, currentUser),
+      password?: string;
+      notes?: { note: string }[];
+    }) => updateUser(user!.id, data, currentUser),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
-      reset();
+      queryClient.invalidateQueries({ queryKey: ["user", user?.id] });
       onOpenChange(false);
     },
     onError: (err: any) => {
-      setError(err.message || "Failed to create user on OWSEC.");
+      setError(err.message || "Failed to update user details on OWSEC.");
     },
   });
 
-  const reset = () => {
-    setName("");
-    setEmail("");
-    setPassword("");
-    setShowPassword(false);
-    setRole("");
-    setChangePassword(true);
-    setEmailValidation(true);
-    setDescription("");
-    setNote("");
-    setError(null);
-  };
-
-  const handleCreate = () => {
-    if (!name.trim() || !email.trim() || !role) return;
+  const handleUpdate = () => {
+    if (!name.trim() || !role || !user) return;
     setError(null);
     mutation.mutate({
       name,
-      email,
       role: role as UserRole,
-      password: password || undefined,
-      changePassword,
-      emailValidation,
       description: description.trim() || undefined,
-      note: note.trim() || undefined,
+      password: password.trim() || undefined,
+      notes: note.trim() ? [{ note: note.trim() }] : undefined,
     });
   };
 
+  if (!user) {
+    return null;
+  }
+
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(nextOpen) => {
-        if (!nextOpen) {
-          reset();
-        }
-        onOpenChange(nextOpen);
-      }}
-    >
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl" showCloseButton={false}>
         <DialogHeader className="flex flex-row items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-          <DialogTitle className="text-lg font-semibold text-slate-900 dark:text-slate-50">Create User</DialogTitle>
+          <DialogTitle className="text-lg font-semibold text-slate-900 dark:text-slate-50">Edit User - {user.email}</DialogTitle>
           <div className="flex items-center gap-2">
             <Button
               type="button"
               size="icon"
               className="h-8 w-8 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
-              onClick={handleCreate}
-              disabled={!name.trim() || !email.trim() || !role || mutation.isPending}
+              onClick={handleUpdate}
+              disabled={!name.trim() || !role || mutation.isPending}
             >
               <Save className="h-4 w-4" />
             </Button>
@@ -141,7 +127,6 @@ export function CreateUserForm({
               size="icon"
               className="h-8 w-8 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-100 dark:border-slate-800 dark:text-slate-400 dark:hover:bg-slate-900"
               onClick={() => {
-                reset();
                 onOpenChange(false);
               }}
               disabled={mutation.isPending}
@@ -152,7 +137,7 @@ export function CreateUserForm({
         </DialogHeader>
 
         {rolesQuery.isLoading ? (
-          <LoadingState title="Loading create-user dependencies" variant="section" rows={4} />
+          <LoadingState title="Loading assignable options" variant="section" rows={4} />
         ) : rolesQuery.isError ? (
           <ErrorState
             error={rolesQuery.error}
@@ -170,20 +155,11 @@ export function CreateUserForm({
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Email *</label>
-                <Input
-                  type="email"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  disabled={mutation.isPending}
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Name *</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Display Name</label>
                 <Input value={name} onChange={(event) => setName(event.target.value)} disabled={mutation.isPending} />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Role *</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Role / Profile</label>
                 <Select value={role} onValueChange={(value) => setRole(value as UserRole)} disabled={mutation.isPending}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select assignable role" />
@@ -197,12 +173,13 @@ export function CreateUserForm({
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Password *</label>
+
+              <div className="space-y-2 sm:col-span-2">
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">New Password</label>
                 <div className="relative">
                   <Input
                     type={showPassword ? "text" : "password"}
-                    placeholder="Leave empty for Iotina@123"
+                    placeholder="Leave empty to keep current password"
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}
                     disabled={mutation.isPending}
@@ -220,38 +197,6 @@ export function CreateUserForm({
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Force Password Change</label>
-                <div className="flex h-10 items-center">
-                  <label className="relative inline-flex cursor-pointer items-center">
-                    <input
-                      type="checkbox"
-                      checked={changePassword}
-                      onChange={(e) => setChangePassword(e.target.checked)}
-                      className="peer sr-only"
-                      disabled={mutation.isPending}
-                    />
-                    <div className="peer h-6 w-11 rounded-full bg-slate-200 dark:bg-slate-700 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all peer-checked:bg-blue-600 peer-checked:after:translate-x-full"></div>
-                  </label>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Email Validation</label>
-                <div className="flex h-10 items-center">
-                  <label className="relative inline-flex cursor-pointer items-center">
-                    <input
-                      type="checkbox"
-                      checked={emailValidation}
-                      onChange={(e) => setEmailValidation(e.target.checked)}
-                      className="peer sr-only"
-                      disabled={mutation.isPending}
-                    />
-                    <div className="peer h-6 w-11 rounded-full bg-slate-200 dark:bg-slate-700 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all peer-checked:bg-blue-600 peer-checked:after:translate-x-full"></div>
-                  </label>
-                </div>
-              </div>
-
-              <div className="space-y-2">
                 <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Description</label>
                 <Input
                   placeholder="Optional description"
@@ -264,7 +209,7 @@ export function CreateUserForm({
               <div className="space-y-2">
                 <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Note</label>
                 <Input
-                  placeholder="Optional note"
+                  placeholder="Optional note update"
                   value={note}
                   onChange={(event) => setNote(event.target.value)}
                   disabled={mutation.isPending}

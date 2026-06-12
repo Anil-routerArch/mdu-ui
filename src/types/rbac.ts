@@ -2,13 +2,13 @@ import type { ID } from "@/types/common";
 import type { HierarchyNodeType } from "@/types/hierarchy";
 
 export type UserRole =
-  | "root_operator"
-  | "operator_admin"
-  | "customer_admin"
-  | "noc_support"
+  | "root"
+  | "admin"
+  | "csr"
   | "installer"
-  | "billing_admin"
-  | "read_only";
+  | "noc"
+  | "accounting"
+  | "system";
 
 export type PermissionAction =
   | "view"

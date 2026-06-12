@@ -26,42 +26,49 @@ function isMockApiError(error: unknown): error is MockApiError {
 
 export function UserListPage() {
   const currentUser = useAuthStore((state) => state.currentUser);
-  const selectedScope = useScopeStore((state) => state.selectedScope);
   const [createOpen, setCreateOpen] = useState(false);
 
+  const userScopeId = useMemo(() => {
+    if (!currentUser) return "none";
+    return currentUser.scopeAssignments[0]?.scopePath.at(-1)?.id || "none";
+  }, [currentUser]);
+
+  const userScopeObj = useMemo(() => {
+    if (!currentUser) return null;
+    const path = currentUser.scopeAssignments[0]?.scopePath || [];
+    const node = path.at(-1);
+    return {
+      nodeId: userScopeId,
+      nodeType: node?.type || "operator",
+      nodeName: node?.name || "Scope",
+      path: path,
+    };
+  }, [currentUser, userScopeId]);
+
   const viewDecision = useMemo(() => {
-    if (!currentUser) {
+    if (!currentUser || !userScopeObj) {
       return null;
     }
 
-    return can(currentUser, "view", "users", selectedScope);
-  }, [currentUser, selectedScope]);
+    return can(currentUser, "view", "users", userScopeObj);
+  }, [currentUser, userScopeObj]);
 
   const createDecision = useMemo(() => {
-    if (!currentUser) {
+    if (!currentUser || !userScopeObj) {
       return null;
     }
 
-    return can(currentUser, "create", "users", selectedScope);
-  }, [currentUser, selectedScope]);
+    return can(currentUser, "create", "users", userScopeObj);
+  }, [currentUser, userScopeObj]);
 
   const query = useQuery({
-    queryKey: ["users", selectedScope?.nodeId ?? "none", currentUser?.id ?? "none"],
-    enabled: Boolean(currentUser && selectedScope && viewDecision?.allowed),
-    queryFn: () => getUsers(selectedScope!.nodeId, currentUser!),
+    queryKey: ["users", userScopeId, currentUser?.id ?? "none"],
+    enabled: Boolean(currentUser && viewDecision?.allowed),
+    queryFn: () => getUsers(userScopeId, currentUser!),
   });
 
   if (!currentUser) {
     return <NoPermissionState description="No active session is available." />;
-  }
-
-  if (!selectedScope) {
-    return (
-      <EmptyState
-        title="No scope selected"
-        description="Select a hierarchy scope to load scoped users."
-      />
-    );
   }
 
   if (!viewDecision?.allowed) {
@@ -92,7 +99,7 @@ export function UserListPage() {
         <div className="space-y-1">
           <h1 className="text-3xl font-semibold tracking-tight text-slate-950">Users</h1>
           <p className="text-sm text-slate-600">
-            Scoped user access for {selectedScope.path.map((item) => item.name).join(" / ")}
+            Scoped user access for {userScopeObj?.path.map((item) => item.name).join(" / ") ?? "Assigned Scope"}
           </p>
         </div>
         {createDecision?.allowed ? (
@@ -114,14 +121,14 @@ export function UserListPage() {
         <UserList
           users={users}
           currentUser={currentUser}
-          selectedScope={selectedScope}
+          selectedScope={userScopeObj}
         />
       )}
 
-      {createDecision?.allowed ? (
+      {createDecision?.allowed && userScopeObj ? (
         <CreateUserForm
           open={createOpen}
-          selectedScope={selectedScope}
+          selectedScope={userScopeObj}
           currentUser={currentUser}
           onOpenChange={setCreateOpen}
         />

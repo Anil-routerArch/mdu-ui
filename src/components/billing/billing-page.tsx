@@ -37,13 +37,23 @@ function isMockApiError(error: unknown): error is MockApiError {
 }
 
 function isManagerRole(role: string | undefined) {
-  return role === "operator_admin" || role === "billing_admin" || role === "root_operator";
+  return role === "admin" || role === "accounting" || role === "root" || role === "system";
 }
 
 export function BillingPage() {
   const currentUser = useAuthStore((state) => state.currentUser);
   const selectedScope = useScopeStore((state) => state.selectedScope);
   const [createOpen, setCreateOpen] = useState(false);
+
+  const isCustomerAdmin = useMemo(() => {
+    if (!currentUser) return false;
+    const role = currentUser.profile.role;
+    return role === "admin" && currentUser.scopeAssignments[0]?.scopePath.at(-1)?.type !== "operator";
+  }, [currentUser]);
+
+  const isReadOnly = useMemo(() => {
+    return currentUser?.profile.role === "csr";
+  }, [currentUser]);
 
   const viewDecision = useMemo(() => {
     if (!currentUser) {
@@ -105,7 +115,7 @@ export function BillingPage() {
       currentUser &&
         selectedScope &&
         viewDecision?.allowed &&
-        (currentUser.profile.role === "customer_admin" || currentUser.profile.role === "read_only"),
+        (isCustomerAdmin || isReadOnly),
     ),
     queryFn: () => getAvailablePlans(selectedScope!.nodeId, currentUser!),
   });
@@ -175,8 +185,6 @@ export function BillingPage() {
   const availablePlans = availablePlansQuery.data ?? [];
   const currentSubscription = currentSubscriptionQuery.data ?? null;
   const subscriptions = subscriptionVisibilityQuery.data ?? [];
-  const isCustomerAdmin = currentUser.profile.role === "customer_admin";
-  const isReadOnly = currentUser.profile.role === "read_only";
   const canSelectPlan = Boolean(
     isCustomerAdmin && approveDecision?.allowed && !isReadOnly,
   );

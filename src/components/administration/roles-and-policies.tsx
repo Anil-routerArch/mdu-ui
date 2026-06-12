@@ -111,7 +111,7 @@ export function RolesAndPolicies({
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-slate-700">
             <p><span className="text-slate-500">Profile:</span> {selectedProfile.name}</p>
-            <p><span className="text-slate-500">Role:</span> {selectedProfile.role.replaceAll("_", " ")}</p>
+            <p><span className="text-slate-500">Role:</span> {selectedProfile.role === "noc" ? "NOC" : selectedProfile.role === "csr" ? "CSR" : selectedProfile.role.charAt(0).toUpperCase() + selectedProfile.role.slice(1)}</p>
             <p><span className="text-slate-500">Summary:</span> {selectedProfile.description ?? "No description"}</p>
             <p>
               <span className="text-slate-500">Business-facing access:</span>{" "}
