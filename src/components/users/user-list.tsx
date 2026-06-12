@@ -20,6 +20,8 @@ import type { User } from "@/types/user";
 import { AssignRoleProfileDialog } from "./assign-role-profile-dialog";
 import { ResetPasswordConfirmation } from "./reset-password-confirmation";
 import { SuspendUserConfirmation } from "./suspend-user-confirmation";
+import { EditUserForm } from "./edit-user-form";
+import { DeleteUserConfirmation } from "./delete-user-confirmation";
 import { UserStatusBadge } from "./user-status-badge";
 
 type UserListProps = {
@@ -32,6 +34,8 @@ export function UserList({ users, currentUser, selectedScope }: UserListProps) {
   const [assignUser, setAssignUser] = useState<User | null>(null);
   const [resetUser, setResetUser] = useState<User | null>(null);
   const [suspendUser, setSuspendUser] = useState<User | null>(null);
+  const [editUser, setEditUser] = useState<User | null>(null);
+  const [deleteUser, setDeleteUser] = useState<User | null>(null);
 
   const editAllowed = useMemo(
     () => can(currentUser, "edit", "users", selectedScope).allowed,
@@ -81,7 +85,7 @@ export function UserList({ users, currentUser, selectedScope }: UserListProps) {
                         <Link href={ROUTES.userDetail(user.id)}>View Detail</Link>
                       </Button>
                       {editAllowed ? (
-                        <Button type="button" variant="outline" size="sm">
+                        <Button type="button" variant="outline" size="sm" onClick={() => setEditUser(user)}>
                           Edit
                         </Button>
                       ) : null}
@@ -112,7 +116,18 @@ export function UserList({ users, currentUser, selectedScope }: UserListProps) {
                           size="sm"
                           onClick={() => setSuspendUser(user)}
                         >
-                          Suspend
+                          {user.status === "suspended" ? "Reactivate" : "Suspend"}
+                        </Button>
+                      ) : null}
+                      {editAllowed ? (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="text-rose-600 hover:text-rose-700"
+                          onClick={() => setDeleteUser(user)}
+                        >
+                          Delete
                         </Button>
                       ) : null}
                     </div>
@@ -123,6 +138,28 @@ export function UserList({ users, currentUser, selectedScope }: UserListProps) {
           </Table>
         </CardContent>
       </Card>
+
+      <EditUserForm
+        user={editUser}
+        currentUser={currentUser}
+        open={Boolean(editUser)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setEditUser(null);
+          }
+        }}
+      />
+
+      <DeleteUserConfirmation
+        user={deleteUser}
+        currentUser={currentUser}
+        open={Boolean(deleteUser)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeleteUser(null);
+          }
+        }}
+      />
 
       <AssignRoleProfileDialog
         user={assignUser}
@@ -137,6 +174,7 @@ export function UserList({ users, currentUser, selectedScope }: UserListProps) {
 
       <ResetPasswordConfirmation
         user={resetUser}
+        currentUser={currentUser}
         open={Boolean(resetUser)}
         onOpenChange={(open) => {
           if (!open) {
@@ -147,6 +185,7 @@ export function UserList({ users, currentUser, selectedScope }: UserListProps) {
 
       <SuspendUserConfirmation
         user={suspendUser}
+        currentUser={currentUser}
         open={Boolean(suspendUser)}
         onOpenChange={(open) => {
           if (!open) {

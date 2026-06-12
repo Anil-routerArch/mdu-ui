@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { useEffect } from "react";
 
+import { usePathname } from "next/navigation";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { GlobalSearchOverlay } from "@/components/shell/global-search-overlay";
 import { ScopeBreadcrumbBar } from "@/components/shell/scope-breadcrumb-bar";
@@ -24,6 +25,7 @@ export function AppShell({ children }: AppShellProps) {
   const mobileSidebarOpen = useUiStore((state) => state.mobileSidebarOpen);
   const closeMobileSidebar = useUiStore((state) => state.closeMobileSidebar);
   const sidebarCollapsed = useUiStore((state) => state.sidebarCollapsed);
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!currentUser || !selectedScope) {
@@ -41,6 +43,8 @@ export function AppShell({ children }: AppShellProps) {
       }
     }
   }, [currentUser, selectedScope, setSelectedNode]);
+
+  const showBreadcrumbs = !pathname.startsWith("/users");
 
   return (
     <div className="h-screen overflow-hidden bg-[var(--mdu-app-bg)] text-[var(--mdu-text)]">
@@ -62,9 +66,11 @@ export function AppShell({ children }: AppShellProps) {
         </Sheet>
 
         <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-          <div className="border-b border-[var(--mdu-border)] bg-[var(--mdu-surface-muted)] px-0 py-0 sm:px-0">
-            <ScopeBreadcrumbBar />
-          </div>
+          {showBreadcrumbs && (
+            <div className="border-b border-[var(--mdu-border)] bg-[var(--mdu-surface-muted)] px-0 py-0 sm:px-0">
+              <ScopeBreadcrumbBar />
+            </div>
+          )}
           <main className="flex-1 overflow-y-auto overflow-x-hidden">{children}</main>
         </div>
       </div>

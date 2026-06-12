@@ -58,16 +58,16 @@ export function UserProfileMenu() {
         <DropdownMenuSeparator />
         <DropdownMenuLabel>Switch Role</DropdownMenuLabel>
         {[
-          "root_operator",
-          "operator_admin",
-          "customer_admin",
-          "noc_support",
+          "root",
+          "system",
+          "admin",
+          "noc",
           "installer",
-          "billing_admin",
-          "read_only",
+          "accounting",
+          "csr",
         ].map((role) => (
-          <DropdownMenuItem key={role} onClick={() => switchRole(role as typeof currentUser.profile.role)}>
-            {role}
+          <DropdownMenuItem key={role} onClick={() => switchRole(role as any)}>
+            {role === "noc" ? "NOC" : role === "csr" ? "CSR" : role.charAt(0).toUpperCase() + role.slice(1)}
           </DropdownMenuItem>
         ))}
 

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 
 import {
   BackendUnavailableState,
@@ -18,6 +19,8 @@ import { useAuthStore } from "@/stores/auth-store";
 import { AssignRoleProfileDialog } from "./assign-role-profile-dialog";
 import { ResetPasswordConfirmation } from "./reset-password-confirmation";
 import { SuspendUserConfirmation } from "./suspend-user-confirmation";
+import { EditUserForm } from "./edit-user-form";
+import { DeleteUserConfirmation } from "./delete-user-confirmation";
 import { UserScopeAssignmentSummary } from "./user-scope-assignment-summary";
 import { UserSessions } from "./user-sessions";
 import { UserStatusBadge } from "./user-status-badge";
@@ -33,10 +36,13 @@ function isMockApiError(error: unknown): error is MockApiError {
 }
 
 export function UserDetailPage({ userId }: UserDetailPageProps) {
+  const router = useRouter();
   const currentUser = useAuthStore((state) => state.currentUser);
   const [assignOpen, setAssignOpen] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
   const [suspendOpen, setSuspendOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   const query = useQuery({
     queryKey: ["user", userId, currentUser?.id ?? "none"],
@@ -99,6 +105,11 @@ export function UserDetailPage({ userId }: UserDetailPageProps) {
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
+            {editDecision?.allowed ? (
+              <Button type="button" variant="outline" onClick={() => setEditOpen(true)}>
+                Edit Details
+              </Button>
+            ) : null}
             {assignDecision?.allowed ? (
               <Button type="button" variant="outline" onClick={() => setAssignOpen(true)}>
                 Assign Role / Profile
@@ -111,7 +122,17 @@ export function UserDetailPage({ userId }: UserDetailPageProps) {
             ) : null}
             {editDecision?.allowed ? (
               <Button type="button" variant="outline" onClick={() => setSuspendOpen(true)}>
-                Suspend
+                {user.status === "suspended" ? "Reactivate" : "Suspend"}
+              </Button>
+            ) : null}
+            {editDecision?.allowed ? (
+              <Button
+                type="button"
+                variant="outline"
+                className="text-rose-600 hover:text-rose-700"
+                onClick={() => setDeleteOpen(true)}
+              >
+                Delete User
               </Button>
             ) : null}
           </div>
@@ -177,6 +198,11 @@ export function UserDetailPage({ userId }: UserDetailPageProps) {
               <CardTitle className="text-base text-slate-950">Actions</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-wrap gap-2">
+              {editDecision?.allowed ? (
+                <Button type="button" variant="outline" onClick={() => setEditOpen(true)}>
+                  Edit Details
+                </Button>
+              ) : null}
               {assignDecision?.allowed ? (
                 <Button type="button" variant="outline" onClick={() => setAssignOpen(true)}>
                   Assign Role / Profile
@@ -189,13 +215,42 @@ export function UserDetailPage({ userId }: UserDetailPageProps) {
               ) : null}
               {editDecision?.allowed ? (
                 <Button type="button" variant="outline" onClick={() => setSuspendOpen(true)}>
-                  Suspend User
+                  {user.status === "suspended" ? "Reactivate User" : "Suspend User"}
+                </Button>
+              ) : null}
+              {editDecision?.allowed ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="text-rose-600 hover:text-rose-700"
+                  onClick={() => setDeleteOpen(true)}
+                >
+                  Delete User Account
                 </Button>
               ) : null}
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
+
+      {editDecision?.allowed ? (
+        <EditUserForm
+          user={user}
+          currentUser={currentUser}
+          open={editOpen}
+          onOpenChange={setEditOpen}
+        />
+      ) : null}
+
+      {editDecision?.allowed ? (
+        <DeleteUserConfirmation
+          user={user}
+          currentUser={currentUser}
+          open={deleteOpen}
+          onOpenChange={setDeleteOpen}
+          onSuccess={() => router.push("/users")}
+        />
+      ) : null}
 
       {assignDecision?.allowed ? (
         <AssignRoleProfileDialog
@@ -208,6 +263,7 @@ export function UserDetailPage({ userId }: UserDetailPageProps) {
       {editDecision?.allowed ? (
         <ResetPasswordConfirmation
           user={user}
+          currentUser={currentUser}
           open={resetOpen}
           onOpenChange={setResetOpen}
         />
@@ -215,6 +271,7 @@ export function UserDetailPage({ userId }: UserDetailPageProps) {
       {editDecision?.allowed ? (
         <SuspendUserConfirmation
           user={user}
+          currentUser={currentUser}
           open={suspendOpen}
           onOpenChange={setSuspendOpen}
         />

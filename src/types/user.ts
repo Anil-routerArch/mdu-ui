@@ -44,4 +44,5 @@ export interface User {
   lastLoginAt: ISODateTime | null;
   createdAt: ISODateTime;
   updatedAt: ISODateTime;
+  description?: string;
 }
