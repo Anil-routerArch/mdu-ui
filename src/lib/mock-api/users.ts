@@ -6,7 +6,13 @@ import { getScopePath, findNodeById } from "@/lib/mock-data/hierarchy";
 import type { UserRole } from "@/types/rbac";
 import type { User, UserSession } from "@/types/user";
 
-const OWSEC_URL = process.env.NEXT_PUBLIC_OWSEC_URL || "https://openwifi3.routerarchitects.com:16001";
+const OWSEC_URL = process.env.NEXT_PUBLIC_OWSEC_URL;
+
+function checkSecurityServiceUrl() {
+  if (!OWSEC_URL) {
+    throw new Error("Security service is unreachable. NEXT_PUBLIC_OWSEC_URL is not configured in your environment (.env).");
+  }
+}
 
 function getHeaders(): HeadersInit {
   if (typeof window === "undefined") return {};
@@ -160,6 +166,7 @@ const assignableRolesByRole: Record<UserRole, UserRole[]> = {
 
 export async function getUsers(scopeId: string, user: User): Promise<User[]> {
   assertCanAccess(user, "view", "users", scopeId);
+  checkSecurityServiceUrl();
 
   const res = await fetch(`${OWSEC_URL}/api/v1/users`, {
     method: "GET",
@@ -186,6 +193,7 @@ export async function getUserById(
   userId: string,
   currentUser: User,
 ): Promise<User> {
+  checkSecurityServiceUrl();
   const res = await fetch(`${OWSEC_URL}/api/v1/user/${userId}`, {
     method: "GET",
     headers: getHeaders(),
@@ -246,6 +254,7 @@ export async function createUser(
 ): Promise<User> {
   const userScopeId = currentUser.scopeAssignments[0]?.scopePath.at(-1)?.id || "none";
   assertCanAccess(currentUser, "create", "users", userScopeId);
+  checkSecurityServiceUrl();
 
   const backendRole = mapClientRoleToBackend(payload.role);
   const emailVal = payload.emailValidation !== false; // default to true
@@ -288,6 +297,7 @@ export async function updateUser(
   },
   currentUser: User,
 ): Promise<User> {
+  checkSecurityServiceUrl();
   const existing = await getUserById(userId, currentUser);
   const targetScopeId = existing.scopeAssignments[0]?.scopePath[existing.scopeAssignments[0]?.scopePath.length - 1]?.id;
   assertCanAccess(currentUser, "edit", "users", targetScopeId);
@@ -319,6 +329,7 @@ export async function deleteUser(
   userId: string,
   currentUser: User,
 ): Promise<boolean> {
+  checkSecurityServiceUrl();
   const existing = await getUserById(userId, currentUser);
   const targetScopeId = existing.scopeAssignments[0]?.scopePath[existing.scopeAssignments[0]?.scopePath.length - 1]?.id;
   assertCanAccess(currentUser, "edit", "users", targetScopeId);
@@ -340,6 +351,7 @@ export async function triggerResetPassword(
   userId: string,
   currentUser: User,
 ): Promise<boolean> {
+  checkSecurityServiceUrl();
   const existing = await getUserById(userId, currentUser);
   const targetScopeId = existing.scopeAssignments[0]?.scopePath[existing.scopeAssignments[0]?.scopePath.length - 1]?.id;
   assertCanAccess(currentUser, "edit", "users", targetScopeId);
