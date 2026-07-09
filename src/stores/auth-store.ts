@@ -6,7 +6,13 @@ import type { UserRole } from "@/types/rbac";
 import type { User } from "@/types/user";
 import { create } from "zustand";
 
-const OWSEC_URL = process.env.NEXT_PUBLIC_OWSEC_URL || "https://openwifi3.routerarchitects.com:16001";
+const OWSEC_URL = process.env.NEXT_PUBLIC_OWSEC_URL;
+
+function checkSecurityServiceUrl() {
+  if (!OWSEC_URL) {
+    throw new Error("Security service is unreachable. NEXT_PUBLIC_OWSEC_URL is not configured in your environment (.env).");
+  }
+}
 
 type AuthStoreState = {
   currentUser: User | null;
@@ -65,6 +71,14 @@ export const useAuthStore = create<AuthStoreState>((set) => ({
 
   initialize: async () => {
     if (typeof window === "undefined") return;
+
+    try {
+      checkSecurityServiceUrl();
+    } catch (err: any) {
+      console.warn(err.message);
+      set(() => ({ isInitializing: false }));
+      return;
+    }
 
     const token =
       localStorage.getItem("mdu_access_token") ||
@@ -135,6 +149,7 @@ export const useAuthStore = create<AuthStoreState>((set) => ({
 
   loginAsUser: async (email, password = "", rememberMe) => {
     try {
+      checkSecurityServiceUrl();
       const res = await fetch(`${OWSEC_URL}/api/v1/oauth2`, {
         method: "POST",
         headers: {
