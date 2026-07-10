@@ -28,6 +28,7 @@ export type ModuleKey =
   | "devices"
   | "configurations"
   | "billing"
+  | "operators"
   | "users"
   | "administration";
 

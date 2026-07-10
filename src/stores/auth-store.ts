@@ -6,7 +6,8 @@ import type { UserRole } from "@/types/rbac";
 import type { User } from "@/types/user";
 import { create } from "zustand";
 
-const OWSEC_URL = process.env.NEXT_PUBLIC_OWSEC_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_OWSEC_URL;
+const OWSEC_URL = BASE_URL ? `${BASE_URL.replace(/:\d+$/, "")}:16001` : "";
 
 function checkSecurityServiceUrl() {
   if (!OWSEC_URL) {

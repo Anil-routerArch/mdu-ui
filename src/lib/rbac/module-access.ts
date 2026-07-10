@@ -10,6 +10,7 @@ const sidebarModules: ModuleKey[] = [
   "devices",
   "configurations",
   "billing",
+  "operators",
   "users",
   "administration",
 ];

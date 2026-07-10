@@ -10,6 +10,8 @@ export const ROUTES = {
   customers: "/customers",
   customerDetail: (customerId: string) => `/customers/${customerId}`,
   billing: "/billing",
+  operators: "/operators",
+  operatorDetail: (operatorId: string) => `/operators/${operatorId}`,
   users: "/users",
   userDetail: (userId: string) => `/users/${userId}`,
   administration: "/administration",

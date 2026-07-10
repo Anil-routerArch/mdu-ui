@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { useEffect } from "react";
 
 import { usePathname } from "next/navigation";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { GlobalSearchOverlay } from "@/components/shell/global-search-overlay";
 import { ScopeBreadcrumbBar } from "@/components/shell/scope-breadcrumb-bar";
 import { Sidebar } from "@/components/shell/sidebar";
@@ -61,6 +61,10 @@ export function AppShell({ children }: AppShellProps) {
 
         <Sheet open={mobileSidebarOpen} onOpenChange={(open) => (!open ? closeMobileSidebar() : undefined)}>
           <SheetContent side="left" className="w-[280px] p-0" showCloseButton>
+            <div className="sr-only">
+              <SheetTitle>Navigation Menu</SheetTitle>
+              <SheetDescription>Access platform modules and hierarchy tree</SheetDescription>
+            </div>
             <Sidebar onNavigate={closeMobileSidebar} />
           </SheetContent>
         </Sheet>
