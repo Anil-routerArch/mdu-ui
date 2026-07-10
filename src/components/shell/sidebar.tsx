@@ -12,6 +12,7 @@ import {
   Settings2Icon,
   ShieldCheckIcon,
   UsersIcon,
+  Store,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,7 @@ const moduleIcons: Record<ModuleKey, typeof LayoutDashboardIcon> = {
   devices: NetworkIcon,
   configurations: Settings2Icon,
   billing: CreditCardIcon,
+  operators: Store,
   users: UsersIcon,
   administration: ShieldCheckIcon,
 };
@@ -44,6 +46,7 @@ function getModuleFromPath(pathname: string): ModuleKey {
   if (pathname.startsWith("/devices")) return "devices";
   if (pathname.startsWith("/configurations")) return "configurations";
   if (pathname.startsWith("/billing")) return "billing";
+  if (pathname.startsWith("/operators")) return "operators";
   if (pathname.startsWith("/users")) return "users";
   if (pathname.startsWith("/administration")) return "administration";
   return "dashboard";

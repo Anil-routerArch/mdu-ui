@@ -11,6 +11,7 @@ export const APP_MODULES = [
     href: ROUTES.configurations,
   },
   { key: "billing", label: "Billing", href: ROUTES.billing },
+  { key: "operators", label: "Operators", href: ROUTES.operators },
   { key: "users", label: "Users", href: ROUTES.users },
   {
     key: "administration",
