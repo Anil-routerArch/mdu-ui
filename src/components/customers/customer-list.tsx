@@ -21,6 +21,7 @@ import type { User } from "@/types/user";
 import { CustomerStatusBadge } from "./customer-status-badge";
 import { DeleteCustomerDialog } from "./delete-customer-dialog";
 import { SuspendCustomerDialog } from "./suspend-customer-dialog";
+import { EditCustomerForm } from "./edit-customer-form";
 
 type CustomerListProps = {
   customers: Customer[];
@@ -31,6 +32,7 @@ type CustomerListProps = {
 export function CustomerList({ customers, user, selectedScope }: CustomerListProps) {
   const [suspendCustomer, setSuspendCustomer] = useState<Customer | null>(null);
   const [deleteCustomer, setDeleteCustomer] = useState<Customer | null>(null);
+  const [editCustomer, setEditCustomer] = useState<Customer | null>(null);
 
   const editAllowed = useMemo(
     () => can(user, "edit", "customers", selectedScope).allowed,
@@ -96,7 +98,12 @@ export function CustomerList({ customers, user, selectedScope }: CustomerListPro
                         <Link href={ROUTES.customerDetail(customer.id)}>View Detail</Link>
                       </Button>
                       {editAllowed ? (
-                        <Button type="button" variant="outline" size="sm">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setEditCustomer(customer)}
+                        >
                           Edit
                         </Button>
                       ) : null}
@@ -148,6 +155,17 @@ export function CustomerList({ customers, user, selectedScope }: CustomerListPro
           }
         }}
       />
+
+      <EditCustomerForm
+        customer={editCustomer}
+        open={Boolean(editCustomer)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setEditCustomer(null);
+          }
+        }}
+      />
     </>
+
   );
 }

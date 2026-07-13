@@ -60,7 +60,6 @@ export function UserList({ users, currentUser, selectedScope }: UserListProps) {
                 <TableHead>Email</TableHead>
                 <TableHead>Role / Profile</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Assigned Scope</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -74,10 +73,6 @@ export function UserList({ users, currentUser, selectedScope }: UserListProps) {
                   </TableCell>
                   <TableCell>
                     <UserStatusBadge status={user.status} />
-                  </TableCell>
-                  <TableCell className="text-slate-700">
-                    {user.scopeAssignments[0]?.scopePath.map((item) => item.name).join(" / ") ??
-                      "No scope"}
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-2">

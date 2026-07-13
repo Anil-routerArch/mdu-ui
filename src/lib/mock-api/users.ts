@@ -250,6 +250,7 @@ export async function createUser(
     emailValidation?: boolean;
     description?: string;
     note?: string;
+    ownerOperatorId?: string;
   },
   currentUser: User,
 ): Promise<User> {
@@ -260,6 +261,8 @@ export async function createUser(
   const backendRole = mapClientRoleToBackend(payload.role);
   const emailVal = payload.emailValidation !== false; // default to true
   const changePass = payload.changePassword !== false; // default to true
+
+  const entity = backendRole !== "root" && payload.ownerOperatorId ? `operator:${payload.ownerOperatorId}` : undefined;
 
   const queryParam = emailVal ? "?email_verification=true" : "";
   const res = await fetch(`${OWSEC_URL}/api/v1/user/0${queryParam}`, {
@@ -272,6 +275,7 @@ export async function createUser(
       userRole: backendRole,
       emailValidation: emailVal,
       changePassword: changePass,
+      entity,
       ...(payload.description ? { description: payload.description } : {}),
       ...(payload.note ? { notes: [{ note: payload.note }] } : {}),
     }),

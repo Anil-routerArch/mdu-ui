@@ -35,6 +35,14 @@ export interface Customer {
   firstAdminUserId?: ID;
   summary: CustomerSummary;
   billing: CustomerBillingSummary;
+  description?: string;
+  deviceRules?: {
+    firmwareUpgrade: string;
+    rcOnly: string;
+    rrm: string;
+  };
+  sourceIP?: string[];
+  notes?: { note: string }[];
   createdAt: ISODateTime;
   updatedAt: ISODateTime;
 }
