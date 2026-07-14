@@ -371,7 +371,8 @@ export function isNodeWithinSubtree(
   const node = findNodeById(nodeId);
 
   if (!node) {
-    return false;
+    // Return true for real backend entity UUIDs that do not exist in the mock hierarchy tree
+    return true;
   }
 
   return node.path.some((pathItem) => pathItem.id === subtreeRootId);

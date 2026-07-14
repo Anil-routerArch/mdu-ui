@@ -1,22 +1,40 @@
 "use client";
 
 import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { ConfirmationDialog } from "@/components/states";
+import { deleteCustomer } from "@/lib/mock-api/customers";
 import type { Customer } from "@/types/customer";
 
 type DeleteCustomerDialogProps = {
   customer: Customer | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onSuccess?: () => void;
 };
 
 export function DeleteCustomerDialog({
   customer,
   open,
   onOpenChange,
+  onSuccess,
 }: DeleteCustomerDialogProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const queryClient = useQueryClient();
+  const [error, setError] = useState<string | null>(null);
+
+  const mutation = useMutation({
+    mutationFn: () => deleteCustomer(customer!.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["customers"] });
+      queryClient.invalidateQueries({ queryKey: ["customer", customer?.id] });
+      if (onSuccess) onSuccess();
+      onOpenChange(false);
+    },
+    onError: (err: any) => {
+      setError(err.message || "Failed to delete customer from Provisioning service.");
+    },
+  });
 
   if (!customer) {
     return null;
@@ -25,28 +43,29 @@ export function DeleteCustomerDialog({
   return (
     <ConfirmationDialog
       open={open}
-      title={`Delete ${customer.name}`}
-      description="This is a mock destructive flow only. No persistent tenant deletion is performed."
+      title={`Delete Customer: ${customer.name}`}
+      description={
+        error ? (
+          <span className="text-rose-600 block mb-2">{error}</span>
+        ) : (
+          `Are you sure you want to permanently delete customer "${customer.name}"? This action cannot be undone.`
+        )
+      }
       confirmLabel="Delete Customer"
       variant="danger"
       impactItems={[
-        "Child hierarchy nodes may be orphaned or removed in the real workflow",
-        "Scoped users would be affected",
-        "Assigned infrastructure devices would require reassignment",
-        "Billing/subscription visibility and subscriptions would be impacted",
-        "Scoped configurations and inherited settings may be invalidated",
+        "The customer entity will be permanently deleted from the Provisioning database",
+        "All nested locations, venues, and device configurations will be lost",
+        "Assigned infrastructure devices under this customer must be reassigned",
       ]}
-      isSubmitting={isSubmitting}
+      isSubmitting={mutation.isPending}
       onCancel={() => {
-        setIsSubmitting(false);
+        setError(null);
         onOpenChange(false);
       }}
       onConfirm={() => {
-        setIsSubmitting(true);
-        window.setTimeout(() => {
-          setIsSubmitting(false);
-          onOpenChange(false);
-        }, 600);
+        setError(null);
+        mutation.mutate();
       }}
     />
   );

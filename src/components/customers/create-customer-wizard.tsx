@@ -1,15 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Save, X } from "lucide-react";
 
 import { LoadingState, ErrorState } from "@/components/states";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -21,9 +20,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { getBillingPlans } from "@/lib/mock-api/billing";
-import { can } from "@/lib/rbac/can";
+import { createCustomer } from "@/lib/mock-api/customers";
+import { getOperators } from "@/lib/mock-api/operators";
 import type { SelectedScope } from "@/types/hierarchy";
 import type { User } from "@/types/user";
 
@@ -34,47 +32,88 @@ type CreateCustomerWizardProps = {
   onOpenChange: (open: boolean) => void;
 };
 
-type WizardStep = "details" | "admin" | "billing" | "review";
-
-const steps: WizardStep[] = ["details", "admin", "billing", "review"];
-
 export function CreateCustomerWizard({
   open,
   selectedScope,
   user,
   onOpenChange,
 }: CreateCustomerWizardProps) {
-  const [stepIndex, setStepIndex] = useState(0);
-  const [submitted, setSubmitted] = useState(false);
+  const queryClient = useQueryClient();
+
+  const [parentOperatorEntityId, setParentOperatorEntityId] = useState("");
   const [name, setName] = useState("");
-  const [tenantType, setTenantType] = useState<"customer" | "sub_operator">("customer");
-  const [notes, setNotes] = useState("");
-  const [adminName, setAdminName] = useState("");
-  const [adminEmail, setAdminEmail] = useState("");
-  const [planId, setPlanId] = useState("");
+  const [description, setDescription] = useState("");
+  const [note, setNote] = useState("");
+  const [firmwareUpgrade, setFirmwareUpgrade] = useState("inherit");
+  const [rcOnly, setRcOnly] = useState("inherit");
+  const [rrm, setRrm] = useState("inherit");
+  const [sourceIPsRaw, setSourceIPsRaw] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
-  const billingDecision = useMemo(
-    () => can(user, "view", "billing", selectedScope).allowed,
-    [selectedScope, user],
-  );
-
-  const billingPlansQuery = useQuery({
-    queryKey: ["create-customer-billing-plans", selectedScope.nodeId, user.id],
-    enabled: open && billingDecision,
-    queryFn: () => getBillingPlans(selectedScope.nodeId, user),
+  // Fetch operators list to populate available parent entities
+  const operatorsQuery = useQuery({
+    queryKey: ["operators", user.id],
+    enabled: open,
+    queryFn: () => getOperators(),
   });
 
-  const step = steps[stepIndex];
+  const mutation = useMutation({
+    mutationFn: (data: {
+      name: string;
+      parent: string;
+      description?: string;
+      deviceRules?: {
+        firmwareUpgrade: string;
+        rcOnly: string;
+        rrm: string;
+      };
+      sourceIP?: string[];
+      notes?: { note: string }[];
+    }) => createCustomer(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["customers"] });
+      reset();
+      onOpenChange(false);
+    },
+    onError: (err: any) => {
+      setError(err.message || "Failed to create customer entity on Provisioning service.");
+    },
+  });
 
   const reset = () => {
-    setStepIndex(0);
-    setSubmitted(false);
+    setParentOperatorEntityId("");
     setName("");
-    setTenantType("customer");
-    setNotes("");
-    setAdminName("");
-    setAdminEmail("");
-    setPlanId("");
+    setDescription("");
+    setNote("");
+    setFirmwareUpgrade("inherit");
+    setRcOnly("inherit");
+    setRrm("inherit");
+    setSourceIPsRaw("");
+    setError(null);
+  };
+
+  const handleSave = () => {
+    if (!name.trim() || !parentOperatorEntityId) return;
+
+    setError(null);
+
+    const sourceIP = sourceIPsRaw
+      .split(/[\s,]+/)
+      .map((ip) => ip.trim())
+      .filter(Boolean);
+
+    mutation.mutate({
+      name: name.trim(),
+      parent: parentOperatorEntityId,
+      description: description.trim() || undefined,
+      deviceRules: {
+        firmwareUpgrade,
+        rcOnly,
+        rrm,
+      },
+      sourceIP,
+      notes: note.trim() ? [{ note: note.trim() }] : undefined,
+    });
   };
 
   return (
@@ -87,167 +126,190 @@ export function CreateCustomerWizard({
         onOpenChange(nextOpen);
       }}
     >
-      <DialogContent className="max-w-3xl">
-        <DialogHeader>
-          <DialogTitle>Create Customer / Sub-Operator</DialogTitle>
-          <DialogDescription>
-            Mock-only multi-step flow. No persistent tenant creation is performed.
-          </DialogDescription>
+      <DialogContent className="max-w-2xl" showCloseButton={false}>
+        <DialogHeader className="flex flex-row items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+          <DialogTitle className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+            Create Customer
+          </DialogTitle>
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              size="icon"
+              className="h-8 w-8 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
+              onClick={handleSave}
+              disabled={!name.trim() || !parentOperatorEntityId || mutation.isPending}
+            >
+              <Save className="h-4 w-4" />
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              className="h-8 w-8 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-100 dark:border-slate-800 dark:text-slate-400 dark:hover:bg-slate-900"
+              onClick={() => {
+                reset();
+                onOpenChange(false);
+              }}
+              disabled={mutation.isPending}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
         </DialogHeader>
 
-        <div className="space-y-4">
-          <div className="rounded-xl border border-slate-200/70 bg-slate-50/60 p-3 text-sm text-slate-700">
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-              Parent Scope
-            </p>
-            <p className="mt-1">{selectedScope.path.map((item) => item.name).join(" / ")}</p>
+        {operatorsQuery.isLoading ? (
+          <div className="py-12">
+            <LoadingState title="Loading parent operators" variant="section" rows={3} />
           </div>
-
-          <div className="flex flex-wrap gap-2">
-            {steps.map((item, index) => (
-              <div
-                key={item}
-                className={`rounded-full border px-3 py-1 text-xs capitalize ${
-                  index === stepIndex
-                    ? "border-blue-200 bg-blue-50 text-blue-700"
-                    : "border-slate-200 bg-white text-slate-500"
-                }`}
-              >
-                {item}
+        ) : operatorsQuery.isError ? (
+          <div className="py-4">
+            <ErrorState
+              error={operatorsQuery.error}
+              onRetry={() => void operatorsQuery.refetch()}
+            />
+          </div>
+        ) : (
+          <div className="space-y-4 pt-2">
+            {error && (
+              <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-sm text-rose-600">
+                {error}
               </div>
-            ))}
-          </div>
+            )}
 
-          {step === "details" ? (
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">Tenant Name</label>
-                <Input value={name} onChange={(event) => setName(event.target.value)} />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">Type</label>
-                <Select value={tenantType} onValueChange={(value) => setTenantType(value as "customer" | "sub_operator")}>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Parent Operator *
+                </label>
+                <Select
+                  value={parentOperatorEntityId}
+                  onValueChange={setParentOperatorEntityId}
+                  disabled={mutation.isPending}
+                >
                   <SelectTrigger className="w-full">
-                    <SelectValue />
+                    <SelectValue placeholder="Select Parent Operator" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="customer">Customer</SelectItem>
-                    <SelectItem value="sub_operator">Sub-Operator</SelectItem>
+                    {operatorsQuery.data?.map((op) => (
+                      <SelectItem key={op.id} value={op.entityId}>
+                        {op.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2 sm:col-span-2">
-                <label className="text-sm font-medium text-slate-700">Notes</label>
-                <Textarea value={notes} onChange={(event) => setNotes(event.target.value)} />
-              </div>
-            </div>
-          ) : null}
 
-          {step === "admin" ? (
-            <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">First Admin Name</label>
-                <Input value={adminName} onChange={(event) => setAdminName(event.target.value)} />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">First Admin Email</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Customer / Tenant Name *
+                </label>
                 <Input
-                  type="email"
-                  value={adminEmail}
-                  onChange={(event) => setAdminEmail(event.target.value)}
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  disabled={mutation.isPending}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Description
+                </label>
+                <Input
+                  value={description}
+                  onChange={(event) => setDescription(event.target.value)}
+                  disabled={mutation.isPending}
+                  placeholder="Optional operator description"
+                  className="placeholder:text-slate-400/50"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Note
+                </label>
+                <Input
+                  value={note}
+                  onChange={(event) => setNote(event.target.value)}
+                  disabled={mutation.isPending}
+                  placeholder="Optional operator notes"
+                  className="placeholder:text-slate-400/50"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Firmware Upgrade (Device Rules)
+                </label>
+                <Select
+                  value={firmwareUpgrade}
+                  onValueChange={setFirmwareUpgrade}
+                  disabled={mutation.isPending}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select firmware upgrade rule" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="inherit">Inherit</SelectItem>
+                    <SelectItem value="yes">Yes</SelectItem>
+                    <SelectItem value="no">No</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  RC Only (Device Rules)
+                </label>
+                <Select
+                  value={rcOnly}
+                  onValueChange={setRcOnly}
+                  disabled={mutation.isPending}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select RC Only rule" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="inherit">Inherit</SelectItem>
+                    <SelectItem value="yes">Yes</SelectItem>
+                    <SelectItem value="no">No</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  RRM (Device Rules)
+                </label>
+                <Select
+                  value={rrm}
+                  onValueChange={setRrm}
+                  disabled={mutation.isPending}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select RRM rule" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="inherit">Inherit</SelectItem>
+                    <SelectItem value="no">No</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Source IP Filter List
+                </label>
+                <Input
+                  value={sourceIPsRaw}
+                  onChange={(event) => setSourceIPsRaw(event.target.value)}
+                  disabled={mutation.isPending}
+                  placeholder="Comma separated IPs"
+                  className="placeholder:text-slate-400/50"
                 />
               </div>
             </div>
-          ) : null}
-
-          {step === "billing" ? (
-            billingDecision ? (
-              billingPlansQuery.isLoading ? (
-                <LoadingState title="Loading billing plans" variant="section" rows={3} />
-              ) : billingPlansQuery.isError ? (
-                <ErrorState error={billingPlansQuery.error} onRetry={() => void billingPlansQuery.refetch()} />
-              ) : (
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-700">
-                      Optional Billing Plan
-                    </label>
-                    <Select value={planId} onValueChange={setPlanId}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select a plan or skip this step" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {billingPlansQuery.data?.map((plan) => (
-                          <SelectItem key={plan.id} value={plan.id}>
-                            {plan.name} · {plan.type.replaceAll("_", " ")}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              )
-            ) : (
-              <div className="rounded-xl border border-slate-200/70 bg-slate-50/60 p-4 text-sm text-slate-700">
-                Billing assignment is not visible for this role. Continue without a plan.
-              </div>
-            )
-          ) : null}
-
-          {step === "review" ? (
-            <div className="space-y-4 rounded-xl border border-slate-200/70 bg-slate-50/60 p-4 text-sm text-slate-700">
-              <p>
-                <span className="font-medium text-slate-900">Name:</span> {name || "Not set"}
-              </p>
-              <p>
-                <span className="font-medium text-slate-900">Type:</span>{" "}
-                {tenantType.replaceAll("_", " ")}
-              </p>
-              <p>
-                <span className="font-medium text-slate-900">First Admin:</span>{" "}
-                {adminName || "Not set"} {adminEmail ? `(${adminEmail})` : ""}
-              </p>
-              <p>
-                <span className="font-medium text-slate-900">Billing Plan:</span>{" "}
-                {planId || "None selected"}
-              </p>
-            </div>
-          ) : null}
-
-          {submitted ? (
-            <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">
-              Mock customer creation prepared for <strong>{name || "Unnamed Tenant"}</strong>.
-            </div>
-          ) : null}
-        </div>
-
-        <DialogFooter>
-          <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          {stepIndex > 0 ? (
-            <Button type="button" variant="outline" onClick={() => setStepIndex(stepIndex - 1)}>
-              Back
-            </Button>
-          ) : null}
-          {stepIndex < steps.length - 1 ? (
-            <Button
-              type="button"
-              onClick={() => setStepIndex(stepIndex + 1)}
-              disabled={step === "details" && !name.trim()}
-            >
-              Next
-            </Button>
-          ) : (
-            <Button
-              type="button"
-              onClick={() => setSubmitted(true)}
-              disabled={!name.trim() || !adminName.trim() || !adminEmail.trim()}
-            >
-              Review Create
-            </Button>
-          )}
-        </DialogFooter>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );

@@ -22,6 +22,8 @@ export interface Operator {
   sourceIP?: string[];
   firmwareRCOnly?: boolean;
   notes: OperatorNote[];
+  entityId: string;
+  parentOperatorId: string;
   created: number;
   modified: number;
 }

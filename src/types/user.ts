@@ -45,4 +45,5 @@ export interface User {
   createdAt: ISODateTime;
   updatedAt: ISODateTime;
   description?: string;
+  owner?: string;
 }

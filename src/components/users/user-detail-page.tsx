@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import {
   BackendUnavailableState,
@@ -14,14 +14,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getUserById } from "@/lib/mock-api/users";
+import { UserAccessPoliciesTab } from "./user-access-policies-tab";
 import { can } from "@/lib/rbac/can";
 import { useAuthStore } from "@/stores/auth-store";
-import { AssignRoleProfileDialog } from "./assign-role-profile-dialog";
 import { ResetPasswordConfirmation } from "./reset-password-confirmation";
 import { SuspendUserConfirmation } from "./suspend-user-confirmation";
 import { EditUserForm } from "./edit-user-form";
 import { DeleteUserConfirmation } from "./delete-user-confirmation";
-import { UserScopeAssignmentSummary } from "./user-scope-assignment-summary";
 import { UserSessions } from "./user-sessions";
 import { UserStatusBadge } from "./user-status-badge";
 
@@ -37,8 +36,11 @@ function isMockApiError(error: unknown): error is MockApiError {
 
 export function UserDetailPage({ userId }: UserDetailPageProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const defaultTab = searchParams.get("tab") || "overview";
+  const [activeTab, setActiveTab] = useState(defaultTab);
+
   const currentUser = useAuthStore((state) => state.currentUser);
-  const [assignOpen, setAssignOpen] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
   const [suspendOpen, setSuspendOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -111,8 +113,8 @@ export function UserDetailPage({ userId }: UserDetailPageProps) {
               </Button>
             ) : null}
             {assignDecision?.allowed ? (
-              <Button type="button" variant="outline" onClick={() => setAssignOpen(true)}>
-                Assign Role / Profile
+              <Button type="button" variant="outline" onClick={() => setActiveTab("access-policies")}>
+                Access Policies
               </Button>
             ) : null}
             {editDecision?.allowed ? (
@@ -139,15 +141,14 @@ export function UserDetailPage({ userId }: UserDetailPageProps) {
         </CardHeader>
       </Card>
 
-      <Tabs defaultValue="overview">
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList
           variant="line"
           className="w-full justify-start border-b border-slate-200 bg-transparent p-0"
         >
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="scope-assignment">Scope Assignment</TabsTrigger>
+          <TabsTrigger value="access-policies">Access Policies</TabsTrigger>
           <TabsTrigger value="sessions">Sessions</TabsTrigger>
-          <TabsTrigger value="actions">Actions</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="pt-4">
@@ -184,52 +185,12 @@ export function UserDetailPage({ userId }: UserDetailPageProps) {
           </div>
         </TabsContent>
 
-        <TabsContent value="scope-assignment" className="pt-4">
-          <UserScopeAssignmentSummary user={user} />
+        <TabsContent value="access-policies" className="pt-4">
+          <UserAccessPoliciesTab user={user} currentUser={currentUser} />
         </TabsContent>
 
         <TabsContent value="sessions" className="pt-4">
           <UserSessions userId={user.id} targetUser={user} currentUser={currentUser} />
-        </TabsContent>
-
-        <TabsContent value="actions" className="pt-4">
-          <Card className="border border-slate-200/80 bg-white shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-base text-slate-950">Actions</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-wrap gap-2">
-              {editDecision?.allowed ? (
-                <Button type="button" variant="outline" onClick={() => setEditOpen(true)}>
-                  Edit Details
-                </Button>
-              ) : null}
-              {assignDecision?.allowed ? (
-                <Button type="button" variant="outline" onClick={() => setAssignOpen(true)}>
-                  Assign Role / Profile
-                </Button>
-              ) : null}
-              {editDecision?.allowed ? (
-                <Button type="button" variant="outline" onClick={() => setResetOpen(true)}>
-                  Reset Password
-                </Button>
-              ) : null}
-              {editDecision?.allowed ? (
-                <Button type="button" variant="outline" onClick={() => setSuspendOpen(true)}>
-                  {user.status === "suspended" ? "Reactivate User" : "Suspend User"}
-                </Button>
-              ) : null}
-              {editDecision?.allowed ? (
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="text-rose-600 hover:text-rose-700"
-                  onClick={() => setDeleteOpen(true)}
-                >
-                  Delete User Account
-                </Button>
-              ) : null}
-            </CardContent>
-          </Card>
         </TabsContent>
       </Tabs>
 
@@ -252,14 +213,6 @@ export function UserDetailPage({ userId }: UserDetailPageProps) {
         />
       ) : null}
 
-      {assignDecision?.allowed ? (
-        <AssignRoleProfileDialog
-          user={user}
-          currentUser={currentUser}
-          open={assignOpen}
-          onOpenChange={setAssignOpen}
-        />
-      ) : null}
       {editDecision?.allowed ? (
         <ResetPasswordConfirmation
           user={user}

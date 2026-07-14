@@ -9,3 +9,5 @@ export { CreateCustomerWizard } from "@/components/customers/create-customer-wiz
 export { SuspendCustomerDialog } from "@/components/customers/suspend-customer-dialog";
 export { DeleteCustomerDialog } from "@/components/customers/delete-customer-dialog";
 export { CustomerStatusBadge } from "@/components/customers/customer-status-badge";
+export { EditCustomerForm } from "@/components/customers/edit-customer-form";
+
