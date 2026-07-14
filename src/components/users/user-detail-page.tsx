@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import {
   BackendUnavailableState,
@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getUserById } from "@/lib/mock-api/users";
-import { UserPolicyDialog } from "./user-policy-dialog";
+import { UserAccessPoliciesTab } from "./user-access-policies-tab";
 import { can } from "@/lib/rbac/can";
 import { useAuthStore } from "@/stores/auth-store";
 import { ResetPasswordConfirmation } from "./reset-password-confirmation";
@@ -36,8 +36,11 @@ function isMockApiError(error: unknown): error is MockApiError {
 
 export function UserDetailPage({ userId }: UserDetailPageProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const defaultTab = searchParams.get("tab") || "overview";
+  const [activeTab, setActiveTab] = useState(defaultTab);
+
   const currentUser = useAuthStore((state) => state.currentUser);
-  const [userPolicyOpen, setUserPolicyOpen] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
   const [suspendOpen, setSuspendOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -110,7 +113,7 @@ export function UserDetailPage({ userId }: UserDetailPageProps) {
               </Button>
             ) : null}
             {assignDecision?.allowed ? (
-              <Button type="button" variant="outline" onClick={() => setUserPolicyOpen(true)}>
+              <Button type="button" variant="outline" onClick={() => setActiveTab("access-policies")}>
                 Access Policies
               </Button>
             ) : null}
@@ -138,12 +141,13 @@ export function UserDetailPage({ userId }: UserDetailPageProps) {
         </CardHeader>
       </Card>
 
-      <Tabs defaultValue="overview">
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList
           variant="line"
           className="w-full justify-start border-b border-slate-200 bg-transparent p-0"
         >
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="access-policies">Access Policies</TabsTrigger>
           <TabsTrigger value="sessions">Sessions</TabsTrigger>
         </TabsList>
 
@@ -181,6 +185,10 @@ export function UserDetailPage({ userId }: UserDetailPageProps) {
           </div>
         </TabsContent>
 
+        <TabsContent value="access-policies" className="pt-4">
+          <UserAccessPoliciesTab user={user} currentUser={currentUser} />
+        </TabsContent>
+
         <TabsContent value="sessions" className="pt-4">
           <UserSessions userId={user.id} targetUser={user} currentUser={currentUser} />
         </TabsContent>
@@ -202,15 +210,6 @@ export function UserDetailPage({ userId }: UserDetailPageProps) {
           open={deleteOpen}
           onOpenChange={setDeleteOpen}
           onSuccess={() => router.push("/users")}
-        />
-      ) : null}
-
-      {assignDecision?.allowed ? (
-        <UserPolicyDialog
-          user={user}
-          currentUser={currentUser}
-          open={userPolicyOpen}
-          onOpenChange={setUserPolicyOpen}
         />
       ) : null}
 

@@ -584,6 +584,7 @@ type InlineMultiSelectProps = {
 function InlineMultiSelect({ options, selected, onChange, disabled }: InlineMultiSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [openUpwards, setOpenUpwards] = useState(false);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -594,6 +595,14 @@ function InlineMultiSelect({ options, selected, onChange, disabled }: InlineMult
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (isOpen && containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      setOpenUpwards(spaceBelow < 200);
+    }
+  }, [isOpen]);
 
   const handleToggleOption = (value: ManagementAccessPermission) => {
     let next: ManagementAccessPermission[];
@@ -649,7 +658,11 @@ function InlineMultiSelect({ options, selected, onChange, disabled }: InlineMult
       </div>
 
       {isOpen && (
-        <div className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border border-slate-200 bg-white p-1 text-sm shadow-md dark:border-slate-800 dark:bg-slate-950">
+        <div
+          className={`absolute z-50 max-h-60 w-full overflow-auto rounded-md border border-slate-200 bg-white p-1 text-sm shadow-md dark:border-slate-800 dark:bg-slate-950 ${
+            openUpwards ? "bottom-full mb-1" : "top-full mt-1"
+          }`}
+        >
           {options.map((opt) => {
             const isChecked = selected.includes(opt.value);
             return (

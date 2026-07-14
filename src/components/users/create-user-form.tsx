@@ -114,7 +114,7 @@ export function CreateUserForm({
   };
 
   const handleCreate = () => {
-    if (!name.trim() || !email.trim() || !role) return;
+    if (!name.trim() || !email.trim() || !role || !password.trim()) return;
     if (role !== "root" && !ownerOperatorId) {
       setError("Please select an operator for the user.");
       return;
@@ -124,7 +124,7 @@ export function CreateUserForm({
       name: name.trim(),
       email: email.trim(),
       role: role as UserRole,
-      password: password || undefined,
+      password: password.trim(),
       changePassword,
       emailValidation,
       description: description.trim() || undefined,
@@ -155,7 +155,7 @@ export function CreateUserForm({
                 size="icon"
                 className="h-8 w-8 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
                 onClick={handleCreate}
-                disabled={!name.trim() || !email.trim() || !role || (role !== "root" && !ownerOperatorId) || mutation.isPending}
+                disabled={!name.trim() || !email.trim() || !role || !password.trim() || (role !== "root" && !ownerOperatorId) || mutation.isPending}
               >
                 <Save className="h-4 w-4" />
               </Button>
@@ -265,7 +265,7 @@ export function CreateUserForm({
                   <div className="relative">
                     <Input
                       type={showPassword ? "text" : "password"}
-                      placeholder="Leave empty for Iotina@123"
+                      placeholder="Enter password"
                       value={password}
                       onChange={(event) => setPassword(event.target.value)}
                       disabled={mutation.isPending}
@@ -293,7 +293,7 @@ export function CreateUserForm({
                         className="peer sr-only"
                         disabled={mutation.isPending}
                       />
-                      <div className="peer h-6 w-11 rounded-full bg-slate-200 dark:bg-slate-700 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all peer-checked:bg-blue-600 peer-checked:after:translate-x-full"></div>
+                      <div className="peer h-6 w-11 rounded-full bg-rose-100 border border-rose-200 dark:bg-rose-950/30 dark:border-rose-900 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all peer-checked:bg-emerald-500 peer-checked:border-emerald-600 dark:peer-checked:bg-emerald-600 dark:peer-checked:border-emerald-700 peer-checked:after:translate-x-full"></div>
                     </label>
                   </div>
                 </div>
@@ -309,7 +309,7 @@ export function CreateUserForm({
                         className="peer sr-only"
                         disabled={mutation.isPending}
                       />
-                      <div className="peer h-6 w-11 rounded-full bg-slate-200 dark:bg-slate-700 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all peer-checked:bg-blue-600 peer-checked:after:translate-x-full"></div>
+                      <div className="peer h-6 w-11 rounded-full bg-rose-100 border border-rose-200 dark:bg-rose-950/30 dark:border-rose-900 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all peer-checked:bg-emerald-500 peer-checked:border-emerald-600 dark:peer-checked:bg-emerald-600 dark:peer-checked:border-emerald-700 peer-checked:after:translate-x-full"></div>
                     </label>
                   </div>
                 </div>

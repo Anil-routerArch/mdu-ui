@@ -3,7 +3,7 @@ export { UserList } from "@/components/users/user-list";
 export { UserDetailPage } from "@/components/users/user-detail-page";
 export { CreateUserForm } from "@/components/users/create-user-form";
 export { EditUserForm } from "@/components/users/edit-user-form";
-export { UserPolicyDialog } from "@/components/users/user-policy-dialog";
+export { UserAccessPoliciesTab } from "@/components/users/user-access-policies-tab";
 export { ResetPasswordConfirmation } from "@/components/users/reset-password-confirmation";
 export { SuspendUserConfirmation } from "@/components/users/suspend-user-confirmation";
 export { UserSessions } from "@/components/users/user-sessions";

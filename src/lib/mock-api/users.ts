@@ -138,6 +138,7 @@ function mapBackendUserToClient(uUser: any): User {
     lastLoginAt: uUser.lastLogin ? parseSafeDate(uUser.lastLogin) : null,
     createdAt: parseSafeDate(uUser.creationDate),
     updatedAt: parseSafeDate(uUser.modified),
+    owner: uUser.owner || "",
   };
 }
 
@@ -264,18 +265,23 @@ export async function createUser(
 
   const entity = backendRole !== "root" && payload.ownerOperatorId ? `operator:${payload.ownerOperatorId}` : undefined;
 
-  const queryParam = emailVal ? "?email_verification=true" : "";
-  const res = await fetch(`${OWSEC_URL}/api/v1/user/0${queryParam}`, {
+  const searchParams = new URLSearchParams();
+  searchParams.set("email_verification", emailVal ? "true" : "false");
+  if (entity) {
+    searchParams.set("entity", entity);
+  }
+  const queryString = searchParams.toString();
+
+  const res = await fetch(`${OWSEC_URL}/api/v1/user/0?${queryString}`, {
     method: "POST",
     headers: getHeaders(),
     body: JSON.stringify({
       name: payload.name,
       email: payload.email,
-      currentPassword: payload.password || "Iotina@123", // default initial password if not specified
+      currentPassword: payload.password || "", // default initial password if not specified
       userRole: backendRole,
       emailValidation: emailVal,
       changePassword: changePass,
-      entity,
       ...(payload.description ? { description: payload.description } : {}),
       ...(payload.note ? { notes: [{ note: payload.note }] } : {}),
     }),

@@ -17,7 +17,6 @@ import { ROUTES } from "@/lib/constants/routes";
 import { can } from "@/lib/rbac/can";
 import type { SelectedScope } from "@/types/hierarchy";
 import type { User } from "@/types/user";
-import { UserPolicyDialog } from "./user-policy-dialog";
 import { ResetPasswordConfirmation } from "./reset-password-confirmation";
 import { SuspendUserConfirmation } from "./suspend-user-confirmation";
 import { EditUserForm } from "./edit-user-form";
@@ -31,7 +30,6 @@ type UserListProps = {
 };
 
 export function UserList({ users, currentUser, selectedScope }: UserListProps) {
-  const [assignUser, setAssignUser] = useState<User | null>(null);
   const [resetUser, setResetUser] = useState<User | null>(null);
   const [suspendUser, setSuspendUser] = useState<User | null>(null);
   const [editUser, setEditUser] = useState<User | null>(null);
@@ -80,13 +78,10 @@ export function UserList({ users, currentUser, selectedScope }: UserListProps) {
                         <Link href={ROUTES.userDetail(user.id)}>View Detail</Link>
                       </Button>
                       {assignAllowed ? (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setAssignUser(user)}
-                        >
-                          Access Policies
+                        <Button asChild variant="outline" size="sm">
+                          <Link href={`${ROUTES.userDetail(user.id)}?tab=access-policies`}>
+                            Access Policies
+                          </Link>
                         </Button>
                       ) : null}
                       {editAllowed ? (
@@ -147,17 +142,6 @@ export function UserList({ users, currentUser, selectedScope }: UserListProps) {
         onOpenChange={(open) => {
           if (!open) {
             setDeleteUser(null);
-          }
-        }}
-      />
-
-      <UserPolicyDialog
-        user={assignUser}
-        currentUser={currentUser}
-        open={Boolean(assignUser)}
-        onOpenChange={(open) => {
-          if (!open) {
-            setAssignUser(null);
           }
         }}
       />
