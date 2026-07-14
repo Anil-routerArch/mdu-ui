@@ -17,7 +17,7 @@ import { ROUTES } from "@/lib/constants/routes";
 import { can } from "@/lib/rbac/can";
 import type { SelectedScope } from "@/types/hierarchy";
 import type { User } from "@/types/user";
-import { AssignRoleProfileDialog } from "./assign-role-profile-dialog";
+import { UserPolicyDialog } from "./user-policy-dialog";
 import { ResetPasswordConfirmation } from "./reset-password-confirmation";
 import { SuspendUserConfirmation } from "./suspend-user-confirmation";
 import { EditUserForm } from "./edit-user-form";
@@ -79,11 +79,6 @@ export function UserList({ users, currentUser, selectedScope }: UserListProps) {
                       <Button asChild variant="outline" size="sm">
                         <Link href={ROUTES.userDetail(user.id)}>View Detail</Link>
                       </Button>
-                      {editAllowed ? (
-                        <Button type="button" variant="outline" size="sm" onClick={() => setEditUser(user)}>
-                          Edit
-                        </Button>
-                      ) : null}
                       {assignAllowed ? (
                         <Button
                           type="button"
@@ -91,7 +86,7 @@ export function UserList({ users, currentUser, selectedScope }: UserListProps) {
                           size="sm"
                           onClick={() => setAssignUser(user)}
                         >
-                          Assign Role / Profile
+                          Access Policies
                         </Button>
                       ) : null}
                       {editAllowed ? (
@@ -156,7 +151,7 @@ export function UserList({ users, currentUser, selectedScope }: UserListProps) {
         }}
       />
 
-      <AssignRoleProfileDialog
+      <UserPolicyDialog
         user={assignUser}
         currentUser={currentUser}
         open={Boolean(assignUser)}
