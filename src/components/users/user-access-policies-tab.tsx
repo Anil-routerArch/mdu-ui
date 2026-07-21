@@ -50,8 +50,8 @@ const resourceOptions = [
   { label: "Operator", value: "operator" },
   { label: "Inventory", value: "inventory" },
   { label: "Configuration", value: "configuration" },
-  { label: "Management Policy", value: "managementPolicy" },
-  { label: "Management Role", value: "managementRole" },
+  { label: "Policies", value: "managementPolicy" },
+  { label: "Roles", value: "managementRole" },
 ];
 
 const permissionOptions: { label: string; value: ManagementAccessPermission }[] = [
@@ -69,8 +69,8 @@ const resourceDescriptions: Record<string, string> = {
   operator: "Access to operator accounts and details",
   inventory: "Access to devices and inventory",
   configuration: "Access to configuration files and profiles",
-  managementPolicy: "Access to management policies",
-  managementRole: "Access to management roles",
+  managementPolicy: "Access to policies",
+  managementRole: "Access to roles",
 };
 
 // Resource count sub-component
@@ -101,6 +101,7 @@ export function UserAccessPoliciesTab({
   currentUser,
 }: UserAccessPoliciesTabProps) {
   const queryClient = useQueryClient();
+  const isRoot = currentUser.profile.role === "root" || currentUser.profile.role === "system";
 
   // Core dialog state
   const [selectedRoleId, setSelectedRoleId] = useState<string | null>(null);
@@ -271,7 +272,7 @@ export function UserAccessPoliciesTab({
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (policyId: string) => deleteManagementPolicy({ policyId }),
+    mutationFn: (policyId: string) => deleteManagementPolicy(policyId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user-management-roles", user.id] });
       setSelectedRoleId(null);
@@ -380,24 +381,26 @@ export function UserAccessPoliciesTab({
                     className="pl-8 h-8 text-xs"
                   />
                 </div>
-                <Button
-                  type="button"
-                  size="sm"
-                  className="h-8 text-xs flex items-center gap-1"
-                  onClick={() => {
-                    setSelectedRoleId("new");
-                    setFormMode("add");
-                    setScope("entity");
-                    setEntityId("");
-                    setVenueId("");
-                    setRoleTemplate("Admin");
-                    setPolicyDescription("");
-                    setResourcePermissions([]);
-                    setError(null);
-                  }}
-                >
-                  <Plus className="h-3.5 w-3.5" /> Create New Assignment
-                </Button>
+                {isRoot && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="h-8 text-xs flex items-center gap-1"
+                    onClick={() => {
+                      setSelectedRoleId("new");
+                      setFormMode("add");
+                      setScope("entity");
+                      setEntityId("");
+                      setVenueId("");
+                      setRoleTemplate("Admin");
+                      setPolicyDescription("");
+                      setResourcePermissions([]);
+                      setError(null);
+                    }}
+                  >
+                    <Plus className="h-3.5 w-3.5" /> Create New Assignment
+                  </Button>
+                )}
               </div>
             </div>
 
@@ -487,31 +490,35 @@ export function UserAccessPoliciesTab({
                               >
                                 View
                               </Button>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="xs"
-                                className="h-7 text-xs font-semibold text-slate-700 dark:text-slate-300"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSelectedRoleId(role.id);
-                                  setFormMode("edit");
-                                }}
-                              >
-                                Edit
-                              </Button>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="xs"
-                                className="h-7 text-xs font-semibold text-rose-500 hover:text-rose-600"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDelete(role);
-                                }}
-                              >
-                                Delete
-                              </Button>
+                              {isRoot && (
+                                <>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="xs"
+                                    className="h-7 text-xs font-semibold text-slate-700 dark:text-slate-300"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setSelectedRoleId(role.id);
+                                      setFormMode("edit");
+                                    }}
+                                  >
+                                    Edit
+                                  </Button>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="xs"
+                                    className="h-7 text-xs font-semibold text-rose-500 hover:text-rose-600"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDelete(role);
+                                    }}
+                                  >
+                                    Delete
+                                  </Button>
+                                </>
+                              )}
                             </div>
                           </TableCell>
                         </TableRow>
@@ -872,7 +879,7 @@ export function UserAccessPoliciesTab({
               <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
                 Other Assigned Entities ({Math.max(0, managementRoles.length - (selectedRole ? 1 : 0))})
               </span>
-              <div className="space-y-2 max-h-40 overflow-y-auto">
+              <div className="space-y-2 max-h-64 overflow-y-auto">
                 {managementRoles.length <= 1 && !selectedRole ? (
                   <p className="text-[10px] text-slate-500 italic">No other entity mappings found.</p>
                 ) : (

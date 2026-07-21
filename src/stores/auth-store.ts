@@ -6,12 +6,29 @@ import type { UserRole } from "@/types/rbac";
 import type { User } from "@/types/user";
 import { create } from "zustand";
 
-const BASE_URL = process.env.NEXT_PUBLIC_OWSEC_URL;
-const OWSEC_URL = BASE_URL ? `${BASE_URL.replace(/:\d+$/, "")}:16001` : "";
+import { getServiceUrl, checkServiceUrl, updateServiceUrls } from "@/lib/api/config";
+
+const OWSEC_URL = getServiceUrl("security");
 
 function checkSecurityServiceUrl() {
-  if (!OWSEC_URL) {
-    throw new Error("Security service is unreachable. NEXT_PUBLIC_OWSEC_URL is not configured in your environment (.env).");
+  checkServiceUrl("security");
+}
+
+async function loadEndpoints(token: string) {
+  try {
+    const res = await fetch(`${getServiceUrl("security")}/api/v1/systemEndpoints`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+      },
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const endpoints = data.endpoints || [];
+      updateServiceUrls(endpoints);
+    }
+  } catch (err) {
+    console.warn("Failed to dynamically load endpoints from security service:", err);
   }
 }
 
@@ -87,6 +104,7 @@ export const useAuthStore = create<AuthStoreState>((set) => ({
 
     if (token) {
       try {
+        await loadEndpoints(token);
         const meRes = await fetch(`${OWSEC_URL}/api/v1/oauth2?me=true`, {
           method: "GET",
           headers: {
@@ -169,6 +187,8 @@ export const useAuthStore = create<AuthStoreState>((set) => ({
       if (!token) {
         return false;
       }
+
+      await loadEndpoints(token);
 
       const meRes = await fetch(`${OWSEC_URL}/api/v1/oauth2?me=true`, {
         method: "GET",

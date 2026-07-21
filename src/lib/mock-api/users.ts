@@ -6,24 +6,12 @@ import { getScopePath, findNodeById } from "@/lib/mock-data/hierarchy";
 import type { UserRole } from "@/types/rbac";
 import type { User, UserSession } from "@/types/user";
 
-const BASE_URL = process.env.NEXT_PUBLIC_OWSEC_URL;
-const OWSEC_URL = BASE_URL ? `${BASE_URL.replace(/:\d+$/, "")}:16001` : "";
+import { getServiceUrl, checkServiceUrl, getHeaders } from "@/lib/api/config";
+
+const OWSEC_URL = getServiceUrl("security");
 
 function checkSecurityServiceUrl() {
-  if (!OWSEC_URL) {
-    throw new Error("Security service is unreachable. NEXT_PUBLIC_OWSEC_URL is not configured in your environment (.env).");
-  }
-}
-
-function getHeaders(): HeadersInit {
-  if (typeof window === "undefined") return {};
-  const token =
-    localStorage.getItem("mdu_access_token") ||
-    sessionStorage.getItem("mdu_access_token");
-  return {
-    "Content-Type": "application/json",
-    "Authorization": `Bearer ${token}`,
-  };
+  checkServiceUrl("security");
 }
 
 function getRoleDisplayName(role: UserRole): string {

@@ -45,8 +45,8 @@ const resourceOptions = [
   { label: "Operator", value: "operator" },
   { label: "Inventory", value: "inventory" },
   { label: "Configuration", value: "configuration" },
-  { label: "Management Policy", value: "managementPolicy" },
-  { label: "Management Role", value: "managementRole" },
+  { label: "Policies", value: "managementPolicy" },
+  { label: "Roles", value: "managementRole" },
 ];
 
 const permissionOptions: { label: string; value: ManagementAccessPermission }[] = [

@@ -1,25 +1,11 @@
 import type { Operator } from "@/types/operator";
 
-const BASE_URL = process.env.NEXT_PUBLIC_OWSEC_URL;
-const OWPROV_URL = BASE_URL ? `${BASE_URL.replace(/:\d+$/, "")}:16005` : "";
+import { getServiceUrl, checkServiceUrl, getHeaders } from "@/lib/api/config";
+
+const OWPROV_URL = getServiceUrl("provisioning");
 
 function checkProvServiceUrl() {
-  if (!OWPROV_URL) {
-    throw new Error(
-      "Provisioning service is unreachable. NEXT_PUBLIC_OWSEC_URL is not configured in your environment (.env)."
-    );
-  }
-}
-
-function getHeaders(): HeadersInit {
-  if (typeof window === "undefined") return {};
-  const token =
-    localStorage.getItem("mdu_access_token") ||
-    sessionStorage.getItem("mdu_access_token");
-  return {
-    "Content-Type": "application/json",
-    "Authorization": `Bearer ${token}`,
-  };
+  checkServiceUrl("provisioning");
 }
 
 export async function getOperators(): Promise<Operator[]> {

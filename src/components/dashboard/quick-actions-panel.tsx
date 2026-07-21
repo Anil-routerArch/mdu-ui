@@ -45,7 +45,7 @@ const allActions = [
   },
   {
     key: "users",
-    label: "Manage Users",
+    label: "Manage IAM",
     description: "Review and update scoped user access.",
     href: ROUTES.users,
     module: "users",
@@ -53,7 +53,7 @@ const allActions = [
   },
   {
     key: "administration",
-    label: "Administration",
+    label: "Policies",
     description: "Open administrative policies and audit areas.",
     href: ROUTES.administration,
     module: "administration",

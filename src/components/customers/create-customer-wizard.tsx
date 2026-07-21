@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -49,6 +51,8 @@ export function CreateCustomerWizard({
   const [rrm, setRrm] = useState("inherit");
   const [sourceIPsRaw, setSourceIPsRaw] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [errorDialogOpen, setErrorDialogOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   // Fetch operators list to populate available parent entities
   const operatorsQuery = useQuery({
@@ -76,7 +80,13 @@ export function CreateCustomerWizard({
       onOpenChange(false);
     },
     onError: (err: any) => {
-      setError(err.message || "Failed to create customer entity on Provisioning service.");
+      const rawMsg = err.message || "Failed to create customer entity on Provisioning service.";
+      const friendlyMsg = rawMsg.includes("Invalid entity type") || rawMsg.includes("1064")
+        ? "Invalid Entity Hierarchy: You cannot nest customer/subscriber entities under another customer. Customer entities can only be created directly under an Operator."
+        : rawMsg;
+      setError(friendlyMsg);
+      setErrorMessage(friendlyMsg);
+      setErrorDialogOpen(true);
     },
   });
 
@@ -90,6 +100,8 @@ export function CreateCustomerWizard({
     setRrm("inherit");
     setSourceIPsRaw("");
     setError(null);
+    setErrorMessage("");
+    setErrorDialogOpen(false);
   };
 
   const handleSave = () => {
@@ -126,7 +138,7 @@ export function CreateCustomerWizard({
         onOpenChange(nextOpen);
       }}
     >
-      <DialogContent className="max-w-2xl" showCloseButton={false}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" showCloseButton={false}>
         <DialogHeader className="flex flex-row items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
           <DialogTitle className="text-lg font-semibold text-slate-900 dark:text-slate-50">
             Create Customer
@@ -311,6 +323,24 @@ export function CreateCustomerWizard({
           </div>
         )}
       </DialogContent>
+
+      <Dialog open={errorDialogOpen} onOpenChange={setErrorDialogOpen}>
+        <DialogContent className="max-w-md bg-white dark:bg-slate-900 border border-rose-500/20 shadow-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-rose-600 dark:text-rose-400 flex items-center gap-2 text-lg font-semibold">
+              <span>Creation Failed</span>
+            </DialogTitle>
+            <DialogDescription className="text-slate-700 dark:text-slate-300 pt-2 font-medium leading-relaxed">
+              {errorMessage}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="mt-4 border-t border-slate-100 dark:border-slate-800 pt-3">
+            <Button type="button" variant="destructive" onClick={() => setErrorDialogOpen(false)}>
+              Dismiss
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }

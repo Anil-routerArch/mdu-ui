@@ -1,25 +1,10 @@
 import { getOperators } from "@/lib/mock-api/operators";
+import { getServiceUrl, checkServiceUrl, getHeaders } from "@/lib/api/config";
 
-const BASE_URL = process.env.NEXT_PUBLIC_OWSEC_URL;
-const OWPROV_URL = BASE_URL ? `${BASE_URL.replace(/:\d+$/, "")}:16005` : "";
+const OWPROV_URL = getServiceUrl("provisioning");
 
 function checkProvServiceUrl() {
-  if (!OWPROV_URL) {
-    throw new Error(
-      "Provisioning service is unreachable. NEXT_PUBLIC_OWSEC_URL is not configured in your environment (.env)."
-    );
-  }
-}
-
-function getHeaders(): HeadersInit {
-  if (typeof window === "undefined") return {};
-  const token =
-    localStorage.getItem("mdu_access_token") ||
-    sessionStorage.getItem("mdu_access_token");
-  return {
-    "Content-Type": "application/json",
-    "Authorization": `Bearer ${token}`,
-  };
+  checkServiceUrl("provisioning");
 }
 
 export type ManagementScope = "entity" | "venue";
@@ -32,10 +17,10 @@ export type ManagementResourceAccess = {
 };
 
 export type ManagementPolicyEntry = {
-  users: string[];
+  users?: string[];
   resources: string[];
   access: ManagementAccessPermission[];
-  policy: string;
+  policy?: string;
 };
 
 export type ManagementPolicyApiResponse = {
@@ -342,21 +327,15 @@ export const buildManagementRolePayload = ({
   };
 };
 
-export const getManagementPolicies = async ({ entityId, venueId }: { entityId: string; venueId?: string }) => {
+export const getManagementPolicies = async () => {
   checkProvServiceUrl();
-  const venueQuery = venueId !== undefined ? `&venue=${encodeURIComponent(venueId)}` : "&venue=";
-  const res = await fetch(`${OWPROV_URL}/api/v1/managementPolicy?entity=${encodeURIComponent(entityId)}${venueQuery}`, {
+  const res = await fetch(`${OWPROV_URL}/api/v1/managementPolicy`, {
     method: "GET",
     headers: getHeaders(),
   });
   if (!res.ok) throw new Error("Failed to fetch management policies.");
   const data = await res.json();
-  return getCollection<ManagementPolicyApiResponse>(data, [
-    "managementPolicies",
-    "policies",
-    "entries",
-    "managementPolicy",
-  ]);
+  return (data.managementPolicies ?? []) as ManagementPolicyApiResponse[];
 };
 
 export const getManagementRoles = async ({ entityId, venueId }: { entityId: string; venueId?: string }) => {
@@ -419,14 +398,13 @@ export const getManagementPolicyById = async ({ policyId }: { policyId: string }
   return data as ManagementPolicyApiResponse;
 };
 
-export const deleteManagementPolicy = async ({ policyId }: { policyId: string }) => {
+export const deleteManagementPolicy = async (policyId: string) => {
   checkProvServiceUrl();
   const res = await fetch(`${OWPROV_URL}/api/v1/managementPolicy/${encodeURIComponent(policyId)}`, {
     method: "DELETE",
     headers: getHeaders(),
   });
   if (!res.ok) throw new Error("Failed to delete management policy.");
-  return true;
 };
 
 export const getManagementRolesForUser = async ({ userId }: { userId: string }) => {
@@ -492,7 +470,7 @@ export const getMatchingManagementPolicy = (
 
     return desiredPolicy.entries.every((desiredEntry) =>
       policyEntries.some((entry) => {
-        const parsedPolicy = parsePolicyScope(entry.policy);
+        const parsedPolicy = parsePolicyScope(entry.policy ?? "");
         return (
           parsedPolicy.scope === scope &&
           parsedPolicy.entityId === entityId &&
@@ -527,8 +505,8 @@ export const getExistingManagementPolicyForUser = (
     if ((policy.venue ?? "") !== desiredVenue) return false;
 
     return (policy.entries ?? []).some((entry) => {
-      const parsedPolicy = parsePolicyScope(entry.policy);
-      return parsedPolicy.scope === scope && parsedPolicy.entityId === entityId && entry.users.includes(userId);
+      const parsedPolicy = parsePolicyScope(entry.policy ?? "");
+      return parsedPolicy.scope === scope && parsedPolicy.entityId === entityId && (entry.users ?? []).includes(userId);
     });
   });
 };
@@ -568,7 +546,7 @@ type NormalizedPermission = {
 const normalizeEntries = (entries: ManagementPolicyEntry[]): NormalizedPermission[] => {
   const result: NormalizedPermission[] = [];
   for (const entry of entries) {
-    const parsed = parsePolicyScope(entry.policy);
+    const parsed = parsePolicyScope(entry.policy ?? "");
     for (const user of entry.users ?? []) {
       for (const resource of entry.resources ?? []) {
         result.push({
@@ -577,7 +555,7 @@ const normalizeEntries = (entries: ManagementPolicyEntry[]): NormalizedPermissio
           entityId: parsed.entityId,
           resource,
           access: entry.access ?? [],
-          policyContext: entry.policy,
+          policyContext: entry.policy ?? "",
         });
       }
     }
@@ -698,8 +676,8 @@ const getReplacementPolicyContext = ({
   userId: string;
 }) => {
   const existingEntry = (existingPolicy?.entries ?? []).find((entry) => {
-    const parsed = parsePolicyScope(entry.policy);
-    return entry.users.includes(userId) && parsed.scope === scope;
+    const parsed = parsePolicyScope(entry.policy ?? "");
+    return (entry.users ?? []).includes(userId) && parsed.scope === scope;
   });
 
   return (
@@ -751,7 +729,7 @@ export const assignUserAccess = async ({
       if (scope === "venue" && (policy.venue ?? "") !== resolvedVenueId) return false;
 
       const hasMatchingScope = (policy.entries ?? []).some((entry) => {
-        const parsed = parsePolicyScope(entry.policy);
+        const parsed = parsePolicyScope(entry.policy ?? "");
         return parsed.scope === scope;
       });
       return hasMatchingScope;
@@ -820,14 +798,21 @@ export const assignUserAccess = async ({
     });
     if (!putRes.ok) throw new Error("Failed to update existing management policy.");
   } else {
-    const postRes = await fetch(`${OWPROV_URL}/api/v1/managementPolicy/create`, {
+    const newPolicyId = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function" 
+      ? crypto.randomUUID() 
+      : "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+          const r = (Math.random() * 16) | 0;
+          const v = c === "x" ? r : (r & 0x3) | 0x8;
+          return v.toString(16);
+        });
+    const postRes = await fetch(`${OWPROV_URL}/api/v1/managementPolicy/${encodeURIComponent(newPolicyId)}`, {
       method: "POST",
       headers: getHeaders(),
       body: JSON.stringify(policyPayload),
     });
     if (!postRes.ok) throw new Error("Failed to create management policy.");
     const createdPolicyData = await postRes.json();
-    policyId = createdPolicyData.id ?? createdPolicyData.managementPolicy ?? createdPolicyData.managementPolicyId ?? "";
+    policyId = createdPolicyData.id ?? createdPolicyData.managementPolicy ?? createdPolicyData.managementPolicyId ?? newPolicyId;
   }
 
   if (!policyId) {
@@ -945,5 +930,27 @@ export const getEntities = async () => {
   if (!res.ok) throw new Error("Failed to fetch entities.");
   const data = await res.json();
   return getCollection<any>(data, ["entities"]);
+};
+
+export const createManagementPolicy = async (payload: ManagementPolicyApiResponse) => {
+  checkProvServiceUrl();
+  const res = await fetch(`${OWPROV_URL}/api/v1/managementPolicy/${encodeURIComponent(payload.id)}`, {
+    method: "POST",
+    headers: getHeaders(),
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error("Failed to create management policy.");
+  return res.json() as Promise<ManagementPolicyApiResponse>;
+};
+
+export const updateManagementPolicy = async (payload: ManagementPolicyApiResponse) => {
+  checkProvServiceUrl();
+  const res = await fetch(`${OWPROV_URL}/api/v1/managementPolicy/${encodeURIComponent(payload.id)}`, {
+    method: "PUT",
+    headers: getHeaders(),
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error("Failed to update management policy.");
+  return res.json() as Promise<ManagementPolicyApiResponse>;
 };
 

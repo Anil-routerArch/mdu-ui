@@ -110,7 +110,7 @@ export function CreateOperatorForm({ open, onOpenChange }: CreateOperatorFormPro
         onOpenChange(nextOpen);
       }}
     >
-      <DialogContent className="max-w-2xl" showCloseButton={false}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" showCloseButton={false}>
         <DialogHeader className="flex flex-row items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
           <DialogTitle className="text-lg font-semibold text-slate-900 dark:text-slate-50">
             Create Operator
