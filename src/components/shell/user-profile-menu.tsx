@@ -13,12 +13,20 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { mockUsers } from "@/lib/mock-data/users";
 import { useAuthStore } from "@/stores/auth-store";
+import { useState, useEffect } from "react";
+import { ACCENT_THEMES, applyAccentTheme } from "@/lib/theme-utils";
 
 export function UserProfileMenu() {
   const currentUser = useAuthStore((state) => state.currentUser);
   const switchRole = useAuthStore((state) => state.switchRole);
   const switchUser = useAuthStore((state) => state.switchUser);
   const logout = useAuthStore((state) => state.logout);
+  const [activeTheme, setActiveTheme] = useState("blue");
+
+  useEffect(() => {
+    const storedAccent = window.localStorage.getItem("mdu-ui-accent") || "blue";
+    setActiveTheme(storedAccent);
+  }, []);
 
   if (!currentUser) {
     return null;
@@ -54,6 +62,31 @@ export function UserProfileMenu() {
           <p className="text-xs text-slate-500">Role: {currentUser.profile.role}</p>
           <p className="text-xs text-slate-500">Scope: {scopeSummary}</p>
         </DropdownMenuLabel>
+
+        <DropdownMenuSeparator />
+        <DropdownMenuLabel>MDU Theme Accent</DropdownMenuLabel>
+        <div className="flex flex-wrap items-center gap-3 px-3 py-2">
+          {Object.keys(ACCENT_THEMES).map((themeName) => {
+            const isSelected = activeTheme === themeName;
+            const themeColors = ACCENT_THEMES[themeName];
+            return (
+              <button
+                key={themeName}
+                type="button"
+                className={`h-6 w-6 rounded-full border-2 transition-all hover:scale-110 active:scale-95 ${
+                  isSelected ? "border-slate-800 dark:border-slate-100 scale-105" : "border-slate-200 dark:border-slate-700"
+                }`}
+                style={{ backgroundColor: themeColors.light["--mdu-primary"] }}
+                onClick={() => {
+                  setActiveTheme(themeName);
+                  applyAccentTheme(themeName);
+                  window.localStorage.setItem("mdu-ui-accent", themeName);
+                }}
+                title={themeName.charAt(0).toUpperCase() + themeName.slice(1)}
+              />
+            );
+          })}
+        </div>
 
         <DropdownMenuSeparator />
         <DropdownMenuLabel>Switch Role</DropdownMenuLabel>

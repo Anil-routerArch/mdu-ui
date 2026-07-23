@@ -11,6 +11,7 @@ import { useScopeStore } from "@/stores/scope-store";
 import { useUiStore } from "@/stores/ui-store";
 
 import { UserProfileMenu } from "@/components/shell/user-profile-menu";
+import { applyAccentTheme } from "@/lib/theme-utils";
 
 export function TopAppHeader() {
   const [query, setQuery] = useState("");
@@ -39,6 +40,10 @@ export function TopAppHeader() {
         (!storedTheme && window.matchMedia("(prefers-color-scheme: dark)").matches);
 
       setIsDarkMode(nextIsDarkMode);
+
+      const storedAccent = window.localStorage.getItem("mdu-ui-accent") || "blue";
+      applyAccentTheme(storedAccent, nextIsDarkMode);
+
       setIsThemeReady(true);
     });
 
@@ -52,6 +57,9 @@ export function TopAppHeader() {
 
     document.documentElement.classList.toggle("dark", isDarkMode);
     window.localStorage.setItem("mdu-ui-theme", isDarkMode ? "dark" : "light");
+
+    const storedAccent = window.localStorage.getItem("mdu-ui-accent") || "blue";
+    applyAccentTheme(storedAccent, isDarkMode);
   }, [isDarkMode, isThemeReady]);
 
   useEffect(() => {
@@ -89,7 +97,7 @@ export function TopAppHeader() {
   };
 
   return (
-    <header className="border-b border-white/10 bg-[linear-gradient(90deg,#071b4d_0%,#0a235e_45%,#0a1d48_100%)] text-white shadow-[0_12px_32px_rgba(7,27,77,0.18)]">
+    <header className="border-b border-white/10 text-white shadow-[var(--mdu-shadow-header)]" style={{ backgroundImage: "var(--mdu-header-gradient)" }}>
       <div className="flex h-[60px] items-center justify-between gap-3 px-4 sm:px-5">
         <div className="flex min-w-0 items-center gap-2.5">
           <Button
@@ -112,7 +120,7 @@ export function TopAppHeader() {
           </Button>
 
           <div className="flex min-w-0 items-center gap-2.5">
-            <div className="flex size-9 items-center justify-center rounded-xl bg-[linear-gradient(180deg,#3b82f6_0%,#1d4ed8_100%)] shadow-[0_10px_20px_rgba(30,64,175,0.3)] ring-1 ring-white/15">
+            <div className="flex size-9 items-center justify-center rounded-xl shadow-[0_10px_20px_rgba(15,23,42,0.15)] ring-1 ring-white/15" style={{ backgroundImage: "var(--mdu-header-accent-gradient)" }}>
               <span className="text-base font-bold text-white">M</span>
             </div>
             <div className="min-w-0">
