@@ -44,7 +44,7 @@ export function AppShell({ children }: AppShellProps) {
     }
   }, [currentUser, selectedScope, setSelectedNode]);
 
-  const showBreadcrumbs = !pathname.startsWith("/users");
+  const showBreadcrumbs = !pathname.startsWith("/users") && !pathname.startsWith("/customers");
 
   return (
     <div className="h-screen overflow-hidden bg-[var(--mdu-app-bg)] text-[var(--mdu-text)]">

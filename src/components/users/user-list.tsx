@@ -73,7 +73,7 @@ export function UserList({ users, currentUser, selectedScope }: UserListProps) {
                     <UserStatusBadge status={user.status} />
                   </TableCell>
                   <TableCell>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex items-center gap-2 whitespace-nowrap">
                       <Button asChild variant="outline" size="sm">
                         <Link href={ROUTES.userDetail(user.id)}>View Detail</Link>
                       </Button>

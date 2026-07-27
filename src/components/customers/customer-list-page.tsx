@@ -14,7 +14,6 @@ import { Button } from "@/components/ui/button";
 import { getCustomers } from "@/lib/mock-api/customers";
 import { can } from "@/lib/rbac/can";
 import { useAuthStore } from "@/stores/auth-store";
-import { useScopeStore } from "@/stores/scope-store";
 import { CreateCustomerWizard } from "./create-customer-wizard";
 import { CustomerList } from "./customer-list";
 
@@ -26,7 +25,6 @@ function isMockApiError(error: unknown): error is MockApiError {
 
 export function CustomerListPage() {
   const currentUser = useAuthStore((state) => state.currentUser);
-  const selectedScope = useScopeStore((state) => state.selectedScope);
   const [createOpen, setCreateOpen] = useState(false);
 
   const viewDecision = useMemo(() => {
@@ -34,38 +32,29 @@ export function CustomerListPage() {
       return null;
     }
 
-    return can(currentUser, "view", "customers", selectedScope);
-  }, [currentUser, selectedScope]);
+    return can(currentUser, "view", "customers", null);
+  }, [currentUser]);
 
   const createDecision = useMemo(() => {
     if (!currentUser) {
       return null;
     }
 
-    return can(currentUser, "create", "customers", selectedScope);
-  }, [currentUser, selectedScope]);
+    return can(currentUser, "create", "customers", null);
+  }, [currentUser]);
 
   const query = useQuery({
-    queryKey: ["customers", selectedScope?.nodeId ?? "none", currentUser?.id ?? "none"],
-    enabled: Boolean(currentUser && selectedScope && viewDecision?.allowed),
-    queryFn: () => getCustomers(selectedScope!.nodeId, currentUser!),
+    queryKey: ["customers", currentUser?.id ?? "none"],
+    enabled: Boolean(currentUser && viewDecision?.allowed),
+    queryFn: () => getCustomers(null, currentUser!),
   });
 
   if (!currentUser) {
     return <NoPermissionState description="No active session is available." />;
   }
 
-  if (!selectedScope) {
-    return (
-      <EmptyState
-        title="No scope selected"
-        description="Select a hierarchy scope to load customers and sub-operators."
-      />
-    );
-  }
-
   if (!viewDecision?.allowed) {
-    return <NoPermissionState description="You cannot view customers for this scope." />;
+    return <NoPermissionState description="You cannot view customers." />;
   }
 
   if (query.isLoading) {
@@ -78,14 +67,13 @@ export function CustomerListPage() {
     }
 
     if (isMockApiError(query.error) && query.error.code === "NO_PERMISSION") {
-      return <NoPermissionState description="Customer data is not available in this scope." />;
+      return <NoPermissionState description="Customer data is not available." />;
     }
 
     return <ErrorState error={query.error} onRetry={() => void query.refetch()} />;
   }
 
   const customers = query.data ?? [];
-  const scopeSummary = selectedScope.path.map((item) => item.name).join(" / ");
 
   return (
     <div className="space-y-4 px-5 py-5 sm:px-6 sm:py-6">
@@ -93,11 +81,16 @@ export function CustomerListPage() {
         <div className="space-y-1">
           <h1 className="text-3xl font-semibold tracking-tight text-slate-950">Customers</h1>
           <p className="text-sm text-slate-600">
-            Customer and sub-operator scopes for {scopeSummary}
+            Manage your customers and sub-operator scopes.
           </p>
         </div>
         {createDecision?.allowed ? (
-          <Button type="button" onClick={() => setCreateOpen(true)}>
+          <Button
+            type="button"
+            onClick={() => setCreateOpen(true)}
+            style={{ backgroundColor: "var(--mdu-primary)", color: "#ffffff" }}
+            className="font-semibold shadow-sm transition-colors hover:opacity-90"
+          >
             Create Customer
           </Button>
         ) : null}
@@ -105,7 +98,7 @@ export function CustomerListPage() {
 
       {customers.length === 0 ? (
         <EmptyState
-          title="No customers in this scope"
+          title="No customers found"
           description="Permitted customers and sub-operators will appear here."
           actionLabel={createDecision?.allowed ? "Create Customer" : undefined}
           onAction={createDecision?.allowed ? () => setCreateOpen(true) : undefined}
@@ -115,14 +108,13 @@ export function CustomerListPage() {
         <CustomerList
           customers={customers}
           user={currentUser}
-          selectedScope={selectedScope}
+          selectedScope={null}
         />
       )}
 
       {createDecision?.allowed ? (
         <CreateCustomerWizard
           open={createOpen}
-          selectedScope={selectedScope}
           user={currentUser}
           onOpenChange={setCreateOpen}
         />

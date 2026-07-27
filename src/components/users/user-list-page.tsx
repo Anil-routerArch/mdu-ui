@@ -97,13 +97,18 @@ export function UserListPage() {
     <div className="space-y-4 px-5 py-5 sm:px-6 sm:py-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-1">
-          <h1 className="text-3xl font-semibold tracking-tight text-slate-950">IAM</h1>
+          <h1 className="text-3xl font-semibold tracking-tight text-slate-950">Users</h1>
           <p className="text-sm text-slate-600">
             Scoped user access for {userScopeObj?.path.map((item) => item.name).join(" / ") ?? "Assigned Scope"}
           </p>
         </div>
         {createDecision?.allowed ? (
-          <Button type="button" onClick={() => setCreateOpen(true)}>
+          <Button
+            type="button"
+            onClick={() => setCreateOpen(true)}
+            style={{ backgroundColor: "var(--mdu-primary)", color: "#ffffff" }}
+            className="font-medium shadow-sm transition-colors hover:opacity-90"
+          >
             Create User
           </Button>
         ) : null}

@@ -10,5 +10,4 @@ export { UserSessions } from "@/components/users/user-sessions";
 export { UserScopeAssignmentSummary } from "@/components/users/user-scope-assignment-summary";
 export { UserStatusBadge } from "@/components/users/user-status-badge";
 export { DeleteUserConfirmation } from "@/components/users/delete-user-confirmation";
-export { AssignAccessForm } from "@/components/users/assign-access-form";
 

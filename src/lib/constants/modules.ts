@@ -12,7 +12,7 @@ export const APP_MODULES = [
   },
   { key: "billing", label: "Billing", href: ROUTES.billing },
   { key: "operators", label: "Operators", href: ROUTES.operators },
-  { key: "users", label: "IAM", href: ROUTES.users },
+  { key: "users", label: "Users", href: ROUTES.users },
   {
     key: "administration",
     label: "Policies",
