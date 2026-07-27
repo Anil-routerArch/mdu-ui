@@ -35,7 +35,12 @@ export function EmptyState({
           </p>
         ) : null}
         {showAction ? (
-          <Button onClick={onAction} type="button">
+          <Button
+            onClick={onAction}
+            type="button"
+            style={{ backgroundColor: "var(--mdu-primary)", color: "#ffffff" }}
+            className="font-medium shadow-sm transition-colors hover:opacity-90"
+          >
             {actionLabel}
           </Button>
         ) : null}

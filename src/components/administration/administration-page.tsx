@@ -500,10 +500,10 @@ export function AdministrationPage() {
     return "";
   }, [selectedScope]);
 
-  // Root or system user check (prov-ui gating parity)
+  // Root user check (prov-ui gating parity)
   const isRoot = useMemo(() => {
     if (!currentUser) return false;
-    return currentUser.profile.role === "root" || currentUser.profile.role === "system";
+    return currentUser.profile.role === "root";
   }, [currentUser]);
 
   // Queries
@@ -567,7 +567,7 @@ export function AdministrationPage() {
             Policies
           </h1>
           <p className="text-sm text-slate-600 dark:text-slate-400">
-            Manage your administrative policies for {selectedScope.path.map((item) => item.name).join(" / ")}
+            Manage system-wide administrative access policies.
           </p>
         </div>
 
@@ -595,7 +595,8 @@ export function AdministrationPage() {
                 setSelectedPolicy(null);
                 setFormOpen(true);
               }}
-              className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm font-medium transition-colors"
+              style={{ backgroundColor: "var(--mdu-primary)", color: "#ffffff" }}
+              className="shadow-sm font-medium transition-colors hover:opacity-90"
             >
               <Plus className="h-4 w-4 mr-2" />
               Create Policy

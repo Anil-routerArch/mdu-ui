@@ -383,13 +383,13 @@ export const getManagementRoleForUserEntity = async ({
   ]);
 };
 
-export const getManagementPolicyById = async ({ policyId }: { policyId: string }): Promise<ManagementPolicyApiResponse | undefined> => {
+export const getManagementPolicyById = async ({ policyId }: { policyId: string }): Promise<ManagementPolicyApiResponse | null> => {
   checkProvServiceUrl();
   const res = await fetch(`${OWPROV_URL}/api/v1/managementPolicy/${encodeURIComponent(policyId)}`, {
     method: "GET",
     headers: getHeaders(),
   });
-  if (res.status === 404) return undefined;
+  if (res.status === 404) return null;
   if (!res.ok) throw new Error("Failed to fetch management policy.");
   const data = await res.json();
   if (typeof data === "object" && data !== null && "managementPolicy" in data && data.managementPolicy) {
@@ -737,7 +737,7 @@ export const assignUserAccess = async ({
 
     if (matchingCandidate) {
       existingRole = matchingCandidate.role;
-      existingPolicy = matchingCandidate.policy;
+      existingPolicy = matchingCandidate.policy ?? undefined;
     }
   }
 
@@ -952,5 +952,37 @@ export const updateManagementPolicy = async (payload: ManagementPolicyApiRespons
   });
   if (!res.ok) throw new Error("Failed to update management policy.");
   return res.json() as Promise<ManagementPolicyApiResponse>;
+};
+
+export const createManagementRole = async (payload: any) => {
+  checkProvServiceUrl();
+  const res = await fetch(`${OWPROV_URL}/api/v1/managementRole/${encodeURIComponent(payload.id)}`, {
+    method: "POST",
+    headers: getHeaders(),
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error("Failed to create management role mapping.");
+  return res.json();
+};
+
+export const updateManagementRole = async (payload: any) => {
+  checkProvServiceUrl();
+  const res = await fetch(`${OWPROV_URL}/api/v1/managementRole/${encodeURIComponent(payload.id)}`, {
+    method: "PUT",
+    headers: getHeaders(),
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error("Failed to update management role mapping.");
+  return res.json();
+};
+
+export const deleteManagementRole = async (roleId: string) => {
+  checkProvServiceUrl();
+  const res = await fetch(`${OWPROV_URL}/api/v1/managementRole/${encodeURIComponent(roleId)}`, {
+    method: "DELETE",
+    headers: getHeaders(),
+  });
+  if (!res.ok) throw new Error("Failed to delete management role mapping.");
+  return res.status === 204 ? null : res.json().catch(() => null);
 };
 

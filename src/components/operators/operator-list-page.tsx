@@ -72,7 +72,12 @@ export function OperatorListPage() {
           </p>
         </div>
         {createDecision?.allowed ? (
-          <Button type="button" onClick={() => setCreateOpen(true)}>
+          <Button
+            type="button"
+            onClick={() => setCreateOpen(true)}
+            style={{ backgroundColor: "var(--mdu-primary)", color: "#ffffff" }}
+            className="font-semibold shadow-sm transition-colors hover:opacity-90"
+          >
             Create Operator
           </Button>
         ) : null}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Save, X } from "lucide-react";
 
@@ -22,14 +22,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { createCustomer } from "@/lib/mock-api/customers";
-import { getOperators } from "@/lib/mock-api/operators";
+import { createCustomer, getAssignedEntitiesForUser } from "@/lib/mock-api/customers";
 import type { SelectedScope } from "@/types/hierarchy";
 import type { User } from "@/types/user";
 
 type CreateCustomerWizardProps = {
   open: boolean;
-  selectedScope: SelectedScope;
+  selectedScope?: SelectedScope | null;
   user: User;
   onOpenChange: (open: boolean) => void;
 };
@@ -54,12 +53,19 @@ export function CreateCustomerWizard({
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  // Fetch operators list to populate available parent entities
-  const operatorsQuery = useQuery({
-    queryKey: ["operators", user.id],
+  // Fetch assigned entities list to populate available parent entities
+  const parentEntitiesQuery = useQuery({
+    queryKey: ["assignedParentEntities", user.id],
     enabled: open,
-    queryFn: () => getOperators(),
+    queryFn: () => getAssignedEntitiesForUser(user),
   });
+
+  // Pre-select if there is only one assigned entity in the list
+  useEffect(() => {
+    if (parentEntitiesQuery.data && parentEntitiesQuery.data.length === 1 && !parentOperatorEntityId) {
+      setParentOperatorEntityId(parentEntitiesQuery.data[0].id);
+    }
+  }, [parentEntitiesQuery.data, parentOperatorEntityId]);
 
   const mutation = useMutation({
     mutationFn: (data: {
@@ -169,15 +175,15 @@ export function CreateCustomerWizard({
           </div>
         </DialogHeader>
 
-        {operatorsQuery.isLoading ? (
+        {parentEntitiesQuery.isLoading ? (
           <div className="py-12">
             <LoadingState title="Loading parent operators" variant="section" rows={3} />
           </div>
-        ) : operatorsQuery.isError ? (
+        ) : parentEntitiesQuery.isError ? (
           <div className="py-4">
             <ErrorState
-              error={operatorsQuery.error}
-              onRetry={() => void operatorsQuery.refetch()}
+              error={parentEntitiesQuery.error}
+              onRetry={() => void parentEntitiesQuery.refetch()}
             />
           </div>
         ) : (
@@ -202,9 +208,9 @@ export function CreateCustomerWizard({
                     <SelectValue placeholder="Select Parent Operator" />
                   </SelectTrigger>
                   <SelectContent>
-                    {operatorsQuery.data?.map((op) => (
-                      <SelectItem key={op.id} value={op.entityId}>
-                        {op.name}
+                    {parentEntitiesQuery.data?.map((entity) => (
+                      <SelectItem key={entity.id} value={entity.id}>
+                        {entity.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
