@@ -79,9 +79,9 @@ export function CustomerListPage() {
     <div className="space-y-4 px-5 py-5 sm:px-6 sm:py-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-1">
-          <h1 className="text-3xl font-semibold tracking-tight text-slate-950">Customers</h1>
+          <h1 className="text-3xl font-semibold tracking-tight text-slate-950">Entities</h1>
           <p className="text-sm text-slate-600">
-            Manage your customers and sub-operator scopes.
+            Manage your entities and operator scopes.
           </p>
         </div>
         {createDecision?.allowed ? (
@@ -91,16 +91,16 @@ export function CustomerListPage() {
             style={{ backgroundColor: "var(--mdu-primary)", color: "#ffffff" }}
             className="font-semibold shadow-sm transition-colors hover:opacity-90"
           >
-            Create Customer
+            Create Entity
           </Button>
         ) : null}
       </div>
 
       {customers.length === 0 ? (
         <EmptyState
-          title="No customers found"
-          description="Permitted customers and sub-operators will appear here."
-          actionLabel={createDecision?.allowed ? "Create Customer" : undefined}
+          title="No entities found"
+          description="Permitted entities and operators will appear here."
+          actionLabel={createDecision?.allowed ? "Create Entity" : undefined}
           onAction={createDecision?.allowed ? () => setCreateOpen(true) : undefined}
           canAct={Boolean(createDecision?.allowed)}
         />

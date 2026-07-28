@@ -94,6 +94,16 @@ export function HierarchyPage() {
       .map((assignment) => assignment.scopePath.at(-1)?.id)
       .filter((id): id is string => Boolean(id));
 
+    // If the assignedRootIds are mock IDs (not valid UUIDs), return the raw roots directly
+    const isRealUuid = (id: string) =>
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id) ||
+      id === "0000-0000-0000";
+
+    const hasRealUuid = assignedRootIds.some(isRealUuid);
+    if (!hasRealUuid) {
+      return treeQuery.data.roots;
+    }
+
     return trimTreeToAssignedRoots(treeQuery.data.roots, assignedRootIds);
   }, [currentUser, treeQuery.data]);
 

@@ -6,7 +6,7 @@ import {
   hierarchyExampleIds,
   toSelectedScope,
 } from "@/lib/mock-data/hierarchy";
-import type { ScopePathItem, SelectedScope } from "@/types/hierarchy";
+import type { HierarchyNode, ScopePathItem, SelectedScope } from "@/types/hierarchy";
 import { create } from "zustand";
 
 type ScopeStoreState = {
@@ -15,8 +15,10 @@ type ScopeStoreState = {
   selectedScopePath: ScopePathItem[];
   recentScopes: SelectedScope[];
   isScopeSelected: boolean;
+  hierarchyNodes: HierarchyNode[];
   setSelectedNode: (nodeId: string) => void;
   setSelectedScope: (scope: SelectedScope | null) => void;
+  setHierarchyNodes: (nodes: HierarchyNode[]) => void;
   clearScope: () => void;
 };
 
@@ -52,14 +54,33 @@ export const useScopeStore = create<ScopeStoreState>((set, get) => ({
     defaultSelectedScope,
     defaultSelectedScope ? [defaultSelectedScope] : [],
   ),
+  hierarchyNodes: [],
+  setHierarchyNodes: (nodes) => {
+    set({ hierarchyNodes: nodes });
+  },
   setSelectedNode: (nodeId) => {
-    const node = findNodeById(nodeId);
+    // 1. Look up in dynamic nodes first
+    let node = get().hierarchyNodes.find((n) => n.id === nodeId);
+    let selectedScope: SelectedScope | null = null;
+    let scopePath: ScopePathItem[] = [];
 
-    if (!node) {
-      return;
+    if (node) {
+      selectedScope = {
+        nodeId: node.id,
+        nodeType: node.type,
+        nodeName: node.name,
+        path: node.path,
+      };
+      scopePath = node.path;
+    } else {
+      // 2. Fall back to mock hierarchy
+      const mockNode = findNodeById(nodeId);
+      if (!mockNode) {
+        return;
+      }
+      selectedScope = toSelectedScope(nodeId);
+      scopePath = getScopePath(nodeId);
     }
-
-    const selectedScope = toSelectedScope(nodeId);
 
     if (!selectedScope) {
       return;
@@ -72,7 +93,7 @@ export const useScopeStore = create<ScopeStoreState>((set, get) => ({
 
     set(() => ({
       ...buildScopeState(selectedScope, recentScopes),
-      selectedScopePath: getScopePath(nodeId),
+      selectedScopePath: scopePath,
     }));
   },
   setSelectedScope: (scope) => {
@@ -81,13 +102,26 @@ export const useScopeStore = create<ScopeStoreState>((set, get) => ({
       return;
     }
 
-    const existingNode = findNodeById(scope.nodeId);
+    let node = get().hierarchyNodes.find((n) => n.id === scope.nodeId);
+    let normalizedScope: SelectedScope | null = null;
+    let scopePath: ScopePathItem[] = [];
 
-    if (!existingNode) {
-      return;
+    if (node) {
+      normalizedScope = {
+        nodeId: node.id,
+        nodeType: node.type,
+        nodeName: node.name,
+        path: node.path,
+      };
+      scopePath = node.path;
+    } else {
+      const mockNode = findNodeById(scope.nodeId);
+      if (!mockNode) {
+        return;
+      }
+      normalizedScope = toSelectedScope(scope.nodeId);
+      scopePath = getScopePath(scope.nodeId);
     }
-
-    const normalizedScope = toSelectedScope(scope.nodeId);
 
     if (!normalizedScope) {
       return;
@@ -100,10 +134,11 @@ export const useScopeStore = create<ScopeStoreState>((set, get) => ({
 
     set(() => ({
       ...buildScopeState(normalizedScope, recentScopes),
-      selectedScopePath: getScopePath(scope.nodeId),
+      selectedScopePath: scopePath,
     }));
   },
   clearScope: () => {
     set(() => buildScopeState(null, []));
   },
 }));
+

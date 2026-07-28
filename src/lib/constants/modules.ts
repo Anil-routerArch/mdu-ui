@@ -2,7 +2,7 @@ import { ROUTES } from "@/lib/constants/routes";
 
 export const APP_MODULES = [
   { key: "dashboard", label: "Dashboard", href: ROUTES.dashboard },
-  { key: "customers", label: "Customers", href: ROUTES.customers },
+  { key: "customers", label: "Entities", href: ROUTES.customers },
   { key: "hierarchy", label: "Hierarchy", href: ROUTES.hierarchy },
   { key: "devices", label: "Devices", href: ROUTES.devices },
   {

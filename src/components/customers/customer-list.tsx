@@ -51,7 +51,7 @@ export function CustomerList({ customers, user, selectedScope }: CustomerListPro
     <>
       <Card className="border border-slate-200/80 bg-white shadow-sm">
         <CardHeader>
-          <CardTitle className="text-base text-slate-950">Customers / Sub-Operators</CardTitle>
+          <CardTitle className="text-base text-slate-950">Entities</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
@@ -79,7 +79,11 @@ export function CustomerList({ customers, user, selectedScope }: CustomerListPro
                     </div>
                   </TableCell>
                   <TableCell className="capitalize text-slate-700">
-                    {customer.type.replaceAll("_", " ")}
+                    {customer.type === "sub_operator" || customer.type === "operator"
+                      ? "Operator"
+                      : customer.type === "customer"
+                      ? "Entity"
+                      : (customer.type as string).replaceAll("_", " ")}
                   </TableCell>
                   <TableCell>
                     <CustomerStatusBadge status={customer.status} />

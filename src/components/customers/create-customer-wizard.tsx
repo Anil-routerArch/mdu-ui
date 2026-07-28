@@ -147,7 +147,7 @@ export function CreateCustomerWizard({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" showCloseButton={false}>
         <DialogHeader className="flex flex-row items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
           <DialogTitle className="text-lg font-semibold text-slate-900 dark:text-slate-50">
-            Create Customer
+            Create Entity
           </DialogTitle>
           <div className="flex items-center gap-2">
             <Button
@@ -219,7 +219,7 @@ export function CreateCustomerWizard({
 
               <div className="space-y-2">
                 <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                  Customer / Tenant Name *
+                  Entity Name *
                 </label>
                 <Input
                   value={name}

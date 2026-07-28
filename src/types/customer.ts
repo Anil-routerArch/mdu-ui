@@ -8,7 +8,7 @@ export type CustomerStatus =
   | "provisioning"
   | "inactive";
 
-export type CustomerType = "customer" | "sub_operator";
+export type CustomerType = "customer" | "sub_operator" | "operator";
 
 export interface CustomerBillingSummary {
   currentPlanName: string | null;

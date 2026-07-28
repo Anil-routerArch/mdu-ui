@@ -27,7 +27,7 @@ export function SuspendCustomerDialog({
       open={open}
       title={`Suspend ${customer.name}`}
       description="This is a mock suspension flow only. No persistent tenant status change is performed."
-      confirmLabel="Suspend Customer"
+      confirmLabel="Suspend Entity"
       impactItems={[
         "Scoped users may lose operational access",
         "Device workflows may be blocked",
