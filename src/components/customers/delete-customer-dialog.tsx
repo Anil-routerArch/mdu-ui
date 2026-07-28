@@ -32,7 +32,7 @@ export function DeleteCustomerDialog({
       onOpenChange(false);
     },
     onError: (err: any) => {
-      setError(err.message || "Failed to delete customer from Provisioning service.");
+      setError(err.message || "Failed to delete entity from Provisioning service.");
     },
   });
 
@@ -43,20 +43,20 @@ export function DeleteCustomerDialog({
   return (
     <ConfirmationDialog
       open={open}
-      title={`Delete Customer: ${customer.name}`}
+      title={`Delete Entity: ${customer.name}`}
       description={
         error ? (
           <span className="text-rose-600 block mb-2">{error}</span>
         ) : (
-          `Are you sure you want to permanently delete customer "${customer.name}"? This action cannot be undone.`
+          `Are you sure you want to permanently delete entity "${customer.name}"? This action cannot be undone.`
         )
       }
-      confirmLabel="Delete Customer"
+      confirmLabel="Delete Entity"
       variant="danger"
       impactItems={[
-        "The customer entity will be permanently deleted from the Provisioning database",
+        "The entity will be permanently deleted from the Provisioning database",
         "All nested locations, venues, and device configurations will be lost",
-        "Assigned infrastructure devices under this customer must be reassigned",
+        "Assigned infrastructure devices under this entity must be reassigned",
       ]}
       isSubmitting={mutation.isPending}
       onCancel={() => {

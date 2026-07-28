@@ -59,7 +59,7 @@ export function CustomerDetailPage({ customerId }: CustomerDetailPageProps) {
   }
 
   if (customerQuery.isLoading || summaryQuery.isLoading) {
-    return <LoadingState title="Loading customer workspace" variant="page" rows={5} />;
+    return <LoadingState title="Loading entity workspace" variant="page" rows={5} />;
   }
 
   const queryError = customerQuery.error ?? summaryQuery.error;
@@ -70,7 +70,7 @@ export function CustomerDetailPage({ customerId }: CustomerDetailPageProps) {
     }
 
     if (isMockApiError(queryError) && queryError.code === "NO_PERMISSION") {
-      return <NoPermissionState description="This customer is outside your permitted scope." />;
+      return <NoPermissionState description="This entity is outside your permitted scope." />;
     }
 
     return <ErrorState error={queryError} onRetry={() => void customerQuery.refetch()} />;
@@ -82,14 +82,14 @@ export function CustomerDetailPage({ customerId }: CustomerDetailPageProps) {
   if (!customer || !summary) {
     return (
       <ErrorState
-        title="Customer not available"
-        description="The requested customer could not be loaded."
+        title="Entity not available"
+        description="The requested entity could not be loaded."
       />
     );
   }
 
   if (permissionDecision && !permissionDecision.allowed) {
-    return <NoPermissionState description="This customer is outside your permitted scope." />;
+    return <NoPermissionState description="This entity is outside your permitted scope." />;
   }
 
   return (
@@ -108,7 +108,11 @@ export function CustomerDetailPage({ customerId }: CustomerDetailPageProps) {
           <div className="rounded-xl border border-slate-200/70 bg-slate-50/60 p-4 text-sm text-slate-700">
             <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Type</p>
             <p className="mt-1 font-semibold text-slate-950">
-              {customer.type.replaceAll("_", " ")}
+              {customer.type === "sub_operator" || customer.type === "operator"
+                ? "Operator"
+                : customer.type === "customer"
+                ? "Entity"
+                : (customer.type as string).replaceAll("_", " ")}
             </p>
           </div>
           <div className="rounded-xl border border-slate-200/70 bg-slate-50/60 p-4 text-sm text-slate-700">

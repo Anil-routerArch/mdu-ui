@@ -45,7 +45,7 @@ export function CustomerWorkspace({
       <Card className="border border-slate-200/80 bg-white shadow-sm">
         <CardHeader className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="space-y-2">
-            <CardTitle className="text-base text-slate-950">Customer Workspace</CardTitle>
+            <CardTitle className="text-base text-slate-950">Entity Workspace</CardTitle>
             <p className="text-sm text-slate-600">
               Scoped workspace for {customer.name}. Tabs are filtered by permission and scope.
             </p>
@@ -84,7 +84,12 @@ export function CustomerWorkspace({
               </CardHeader>
               <CardContent className="space-y-3 text-sm text-slate-700">
                 <div>
-                  <span className="text-slate-500">Type:</span> {customer.type.replaceAll("_", " ")}
+                  <span className="text-slate-500">Type:</span>{" "}
+                  {customer.type === "sub_operator" || customer.type === "operator"
+                    ? "Operator"
+                    : customer.type === "customer"
+                    ? "Entity"
+                    : (customer.type as string).replaceAll("_", " ")}
                 </div>
                 <div>
                   <span className="text-slate-500">First Admin User:</span>{" "}

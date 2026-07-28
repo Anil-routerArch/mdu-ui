@@ -116,10 +116,17 @@ export async function getCustomers(
     }
   }
 
-  // 4. Filter entities whose parent belongs to the assigned entities of the user
-  let childEntities = allEntities.filter((entity: any) =>
-    entity.parent && assignedEntityIds.has(entity.parent)
-  );
+  // 4. Filter entities: show child entities for root users; show both assigned entities and child entities for non-root users.
+  let childEntities = allEntities.filter((entity: any) => {
+    if (entity.id === "0000-0000-0000") {
+      return false;
+    }
+    if (user.profile.role === "root") {
+      return entity.parent && assignedEntityIds.has(entity.parent);
+    } else {
+      return assignedEntityIds.has(entity.id) || (entity.parent && assignedEntityIds.has(entity.parent));
+    }
+  });
 
   // If a specific scopeId is chosen, filter by that parent scope
   if (resolvedScopeId) {
