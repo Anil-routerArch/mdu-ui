@@ -75,7 +75,7 @@ export function DeviceInventoryPage() {
   }
 
   if (query.isLoading) {
-    return <LoadingState title="Loading devices" variant="page" rows={5} />;
+    return <LoadingState title="Loading inventory" variant="page" rows={5} />;
   }
 
   if (query.isError) {
@@ -84,7 +84,7 @@ export function DeviceInventoryPage() {
     }
 
     if (isMockApiError(query.error) && query.error.code === "NO_PERMISSION") {
-      return <NoPermissionState description="Device inventory is not available in this scope." />;
+      return <NoPermissionState description="Inventory is not available in this scope." />;
     }
 
     return <ErrorState error={query.error} onRetry={() => void query.refetch()} />;
@@ -97,7 +97,7 @@ export function DeviceInventoryPage() {
     <div className="space-y-4 px-5 py-5 sm:px-6 sm:py-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-1">
-          <h1 className="text-3xl font-semibold tracking-tight text-slate-950">Devices</h1>
+          <h1 className="text-3xl font-semibold tracking-tight text-slate-950">Inventory</h1>
           <p className="text-sm text-slate-600">
             Infrastructure inventory for the selected scope: {scopeSummary}
           </p>

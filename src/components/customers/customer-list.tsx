@@ -60,7 +60,6 @@ export function CustomerList({ customers, user, selectedScope }: CustomerListPro
                 <TableHead>Name</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Parent Scope</TableHead>
                 <TableHead>Subscription</TableHead>
                 <TableHead>Users</TableHead>
                 <TableHead>Devices</TableHead>
@@ -88,9 +87,7 @@ export function CustomerList({ customers, user, selectedScope }: CustomerListPro
                   <TableCell>
                     <CustomerStatusBadge status={customer.status} />
                   </TableCell>
-                  <TableCell className="text-slate-700">
-                    {customer.path.slice(0, -1).map((item) => item.name).join(" / ") || "Root"}
-                  </TableCell>
+
                   <TableCell className="text-slate-700">
                     {customer.billing.currentPlanName ?? "No active subscription"}
                   </TableCell>

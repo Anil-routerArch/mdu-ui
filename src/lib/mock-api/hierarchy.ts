@@ -10,7 +10,7 @@ function checkProvServiceUrl() {
   checkServiceUrl("provisioning");
 }
 
-let globalFlattenedNodesCache: HierarchyNode[] = [];
+export let globalFlattenedNodesCache: HierarchyNode[] = [];
 
 function flattenHierarchyNodes(nodes: HierarchyNode[]): HierarchyNode[] {
   return nodes.flatMap((node) => [
