@@ -4,7 +4,7 @@ export const APP_MODULES = [
   { key: "dashboard", label: "Dashboard", href: ROUTES.dashboard },
   { key: "customers", label: "Entities", href: ROUTES.customers },
   { key: "hierarchy", label: "Hierarchy", href: ROUTES.hierarchy },
-  { key: "devices", label: "Devices", href: ROUTES.devices },
+  { key: "devices", label: "Inventory", href: ROUTES.devices },
   {
     key: "configurations",
     label: "Configurations",
